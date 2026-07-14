@@ -1,0 +1,406 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2, Search, MapPin, Users, Heart, MessageSquare, Share2, Sparkles, ChevronRight } from "lucide-react";
+import PortalLayout from "@/components/PortalLayout";
+
+const getFallbackImage = (id: string | number) => {
+  const fallbacks = [
+    "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1200",
+    "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1200",
+    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200",
+    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1200",
+    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200"
+  ];
+  const str = String(id);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % fallbacks.length;
+  return fallbacks[index];
+};
+
+export default function DiscoverFestivals() {
+  const router = useRouter();
+  const [festivals, setFestivals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Social feed interaction states
+  const [likedFestivals, setLikedFestivals] = useState<{ [key: string]: boolean }>({});
+  const [likeCounts, setLikeCounts] = useState<{ [key: string]: number }>({});
+
+  const handleLikeToggle = (id: string) => {
+    setLikedFestivals(prev => {
+      const isLiked = !prev[id];
+      setLikeCounts(prevCounts => ({
+        ...prevCounts,
+        [id]: (prevCounts[id] || 0) + (isLiked ? 1 : -1)
+      }));
+      return { ...prev, [id]: isLiked };
+    });
+  };
+
+  // Filters State
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
+  const [minScore, setMinScore] = useState("");
+  const [minFootfall, setMinFootfall] = useState("");
+
+  const fetchFestivals = async () => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.append("search", search);
+      if (location) queryParams.append("location", location);
+      if (minScore) queryParams.append("minScore", minScore);
+      if (minFootfall) queryParams.append("minFootfall", minFootfall);
+
+      const response = await fetch(`/api/festivals?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("Failed to load festival intelligence directory.");
+      }
+      const data = await response.json();
+      setFestivals(data.festivals);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFestivals();
+  }, [location, minScore, minFootfall]); // refetch on filter toggle
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchFestivals();
+  };
+
+  return (
+    <PortalLayout activeTab="discover">
+      <div className="flex flex-col gap-12">
+        {/* Page Title */}
+        <div className="flex flex-col gap-3">
+          <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-brand-secondary">
+            COMMERCE EXPLORER
+          </span>
+          <h1 className="font-serif text-[40px] font-medium tracking-tight text-brand-primary">
+            Festival Intelligence Network
+          </h1>
+        </div>
+
+        {/* Filter Toolbar */}
+        <div className="bg-brand-card border border-brand-border rounded-[24px] p-6 flex flex-col gap-6 shadow-sm">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative flex items-center">
+              <Search className="absolute left-4 text-brand-secondary" size={16} />
+              <input
+                type="text"
+                placeholder="Search by festival name or college campus..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-brand-border focus:outline-none focus:border-brand-primary text-[13px] bg-brand-bg font-sans"
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn-liquid-glass-dark text-xs py-3 px-6 h-full flex items-center justify-center gap-2"
+            >
+              Analyze Directory
+            </button>
+          </form>
+
+          <div className="border-t border-brand-border pt-4 grid grid-cols-1 sm:grid-cols-3 gap-6 font-sans text-xs text-brand-secondary">
+            {/* Location Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="uppercase tracking-wider font-semibold text-[10px]">Filter by Region</label>
+              <select
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-brand-border bg-brand-card text-brand-primary focus:outline-none"
+              >
+                <option value="">All Regions (India)</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+              </select>
+            </div>
+
+            {/* Score Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="uppercase tracking-wider font-semibold text-[10px]">Min Opportunity Score</label>
+              <select
+                value={minScore}
+                onChange={(e) => setMinScore(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-brand-border bg-brand-card text-brand-primary focus:outline-none"
+              >
+                <option value="">All Qualities</option>
+                <option value="90">90+ Premium Tier-1</option>
+                <option value="85">85+ Established Tier-1/2</option>
+                <option value="80">80+ Growing Campus</option>
+              </select>
+            </div>
+
+            {/* Footfall Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="uppercase tracking-wider font-semibold text-[10px]">Min Expected Footfall</label>
+              <select
+                value={minFootfall}
+                onChange={(e) => setMinFootfall(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-brand-border bg-brand-card text-brand-primary focus:outline-none"
+              >
+                <option value="">Any Scale</option>
+                <option value="100000">1,00,000+ Huge Scale</option>
+                <option value="40000">40,000+ Medium-High</option>
+                <option value="10000">10,000+ Medium Scale</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Directory Results */}
+        {loading ? (
+          <div className="flex h-96 items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-brand-secondary" />
+          </div>
+        ) : error ? (
+          <div className="p-8 border border-brand-border bg-brand-card text-center rounded-2xl text-brand-secondary text-sm">
+            {error}
+          </div>
+        ) : festivals.length === 0 ? (
+          <div className="p-16 border border-brand-border bg-brand-card text-center rounded-[24px] text-brand-secondary text-sm">
+            No festival assets matching the designated criteria exist on the network.
+          </div>
+        ) : (
+          <>
+            {/* DESKTOP CARD GRID VIEW (landscape / widescreen) */}
+            <div className="hidden lg:grid landscape:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+              {festivals.map((fest) => {
+                const bookedCount = fest.stalls.filter((s: any) => s.status === "BOOKED").length;
+                const totalStalls = fest.stalls.length;
+                return (
+                  <div 
+                    key={fest.id} 
+                    className="bg-brand-card border border-brand-border rounded-[24px] overflow-hidden flex flex-col hover:border-brand-primary/20 transition-all duration-300 group"
+                  >
+                    {/* Banner Image */}
+                    <div 
+                      className="relative w-full aspect-[16/10] bg-brand-bg/80 overflow-hidden cursor-pointer flex items-center justify-center border-b border-brand-border/40"
+                      onClick={() => router.push(`/festival/${fest.id}`)}
+                    >
+                      <img 
+                        src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)} 
+                        alt={fest.name} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
+                        onError={(e: any) => {
+                          e.target.onerror = null;
+                          e.target.src = getFallbackImage(fest.id);
+                        }}
+                      />
+                      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-brand-border/40 px-3 py-1 rounded-full text-[11px] font-semibold text-brand-primary flex items-center gap-1 shadow-sm">
+                        ⚡ {fest.opportunityScore} Score
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 flex flex-col gap-4 text-left flex-1 justify-between">
+                      <div className="flex flex-col gap-2">
+                        {/* Title */}
+                        <h3 
+                          className="font-serif text-[24px] font-semibold text-brand-primary cursor-pointer hover:text-purple-400 transition-colors leading-tight"
+                          onClick={() => router.push(`/festival/${fest.id}`)}
+                        >
+                          {fest.name}
+                        </h3>
+
+                        {/* Location */}
+                        <div className="flex items-center gap-1 text-brand-secondary text-[12px] font-sans">
+                          <span>📍</span>
+                          <span>{fest.collegeName} &middot; {fest.location}</span>
+                        </div>
+
+                        {/* Headliners */}
+                        <div className="flex items-start gap-1.5 text-[12px] text-brand-secondary font-sans mt-2 leading-relaxed">
+                          <span className="shrink-0">🎸</span>
+                          <span>
+                            <strong className="text-brand-primary font-medium">Headliners:</strong> {fest.artistLineup || "To be announced"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Metrics Footer */}
+                      <div className="border-t border-brand-border/40 pt-4 mt-2 grid grid-cols-3 gap-2 text-left font-sans">
+                        {/* Booked Stalls */}
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-pink-500 shrink-0"></span>
+                            Booked
+                          </span>
+                          <span className="text-[12px] font-semibold text-brand-primary">
+                            {bookedCount} / {totalStalls} Booths/Stalls
+                          </span>
+                        </div>
+
+                        {/* Expected Footfall */}
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-purple-500 shrink-0"></span>
+                            Footfall
+                          </span>
+                          <span className="text-[12px] font-semibold text-brand-primary">
+                            {fest.expectedFootfall.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        {/* Demographics / Focus */}
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-blue-500 shrink-0"></span>
+                            Focus
+                          </span>
+                          <span 
+                            className="text-[12px] font-semibold text-brand-primary truncate block" 
+                            title={fest.demographics || "Student youth"}
+                          >
+                            {fest.demographics || "80% student youth"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* MOBILE SOCIAL FEED VIEW (vertical / narrow screen) */}
+            <div className="lg:hidden landscape:hidden flex flex-col gap-10 w-full">
+              {festivals.map((fest) => {
+                const bookedCount = fest.stalls.filter((s: any) => s.status === "BOOKED").length;
+                const totalStalls = fest.stalls.length;
+                
+                // Like counts simulation
+                const isLiked = !!likedFestivals[fest.id];
+                const likeCount = (likeCounts[fest.id] !== undefined)
+                  ? likeCounts[fest.id]
+                  : Math.floor((fest.opportunityScore * 6.5) + (fest.expectedFootfall * 0.003)) || 142;
+
+                // Handle naming/formatting
+                const handle = "@" + fest.name.toLowerCase().replace(/[^a-z0-9]/g, "") + "_gz";
+                
+                return (
+                  <div key={fest.id} className="bg-brand-card border border-brand-border rounded-[24px] overflow-hidden shadow-sm flex flex-col gap-4 hover:border-brand-primary/20 transition-all duration-300 w-full">
+                    {/* Card Header: Organizer Profile */}
+                    <div className="p-4 flex items-center justify-between border-b border-brand-border/40 bg-brand-bg/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center font-serif font-bold text-sm text-purple-400 uppercase select-none">
+                          {fest.collegeName.slice(0, 2)}
+                        </div>
+                        <div className="flex flex-col text-left">
+                          <span className="font-serif text-[15px] font-semibold text-brand-primary leading-none">{fest.collegeName}</span>
+                          <span className="font-sans text-[11px] text-brand-secondary mt-1">{handle} &middot; {fest.location}</span>
+                        </div>
+                      </div>
+                      {/* Floating Quality Score Tag */}
+                      <span className="px-2.5 py-1 bg-brand-bg border border-brand-border text-brand-primary font-sans text-[10px] font-semibold rounded-full flex items-center gap-1">
+                        ⚡ {fest.opportunityScore} Score
+                      </span>
+                    </div>
+
+                    {/* Main Visual Image (Post Content) */}
+                    <div className="relative w-full aspect-[4/3] bg-brand-bg overflow-hidden cursor-pointer" onClick={() => router.push(`/festival/${fest.id}`)}>
+                      <img 
+                        src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)} 
+                        alt={fest.name} 
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-102"
+                        onError={(e: any) => {
+                          e.target.onerror = null;
+                          e.target.src = getFallbackImage(fest.id);
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                    </div>
+
+                    {/* Post Actions Bar */}
+                    <div className="px-4 py-2 flex items-center justify-between border-b border-brand-border/40 text-brand-primary">
+                      <div className="flex items-center gap-6">
+                        {/* Heart Like Button */}
+                        <button 
+                          onClick={() => handleLikeToggle(fest.id)}
+                          className="flex items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none cursor-pointer"
+                        >
+                          <Heart size={18} className={isLiked ? "fill-red-500 text-red-500 animate-pulse" : "text-brand-secondary"} />
+                          <span className="font-sans text-[12px] font-semibold text-brand-primary">{likeCount}</span>
+                        </button>
+
+                        {/* Comments count */}
+                        <div className="flex items-center gap-1.5 text-brand-secondary">
+                          <MessageSquare size={17} />
+                          <span className="font-sans text-[12px] font-semibold text-brand-primary">12</span>
+                        </div>
+
+                        {/* Share Icon */}
+                        <button className="text-brand-secondary hover:text-brand-primary transition-colors focus:outline-none cursor-pointer" title="Share Post">
+                          <Share2 size={16} />
+                        </button>
+                      </div>
+
+                      {/* Spaces Badge */}
+                      <span className="px-2.5 py-0.5 border border-brand-border bg-brand-bg rounded-full text-[10px] text-brand-secondary uppercase tracking-wider font-semibold">
+                        {totalStalls - bookedCount} of {totalStalls} Booths/Stalls Left
+                      </span>
+                    </div>
+
+                    {/* Caption & Demographics */}
+                    <div className="px-5 pb-5 flex flex-col gap-3 font-sans text-xs">
+                      <div className="text-left leading-relaxed">
+                        <span className="font-semibold text-brand-primary mr-1.5">{handle}</span>
+                        <span className="text-brand-secondary font-light text-[13px]">
+                          Official {fest.type || "Festival"} opportunity details are live! Confirming artist lineup: <strong className="text-brand-primary font-medium">{fest.artistLineup || "To be announced"}</strong>. Demographics align to {fest.demographics || "80% student youth"}. Average booth/stall prices are listed at ₹{fest.defaultStallPrice.toLocaleString("en-IN")}.
+                        </span>
+                      </div>
+
+                      {/* Timeline Event schedules */}
+                      {fest.timeline && (
+                        <div className="p-3.5 bg-brand-bg border border-brand-border rounded-2xl text-left text-brand-secondary/90 leading-relaxed font-light text-[11px] flex flex-col gap-1.5">
+                          <span className="font-semibold text-[10px] text-purple-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                            📅 Event Schedule / Timeline
+                          </span>
+                          {fest.timeline.split("\n").slice(0, 3).map((line: string, i: number) => (
+                            <div key={i} className="flex gap-2">
+                              <span className="text-purple-500 font-bold">&middot;</span>
+                              <span>{line}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Simulating a top comment / review */}
+                      <div className="text-left border-t border-brand-border/40 pt-3">
+                        <span className="font-semibold text-brand-primary mr-1.5">@chaayos_teas</span>
+                        <span className="text-purple-400">"Allocated A2 walkway space in past edition. Expected footfall was 100% verified, ROI was outstanding."</span>
+                      </div>
+
+                      {/* Evaluate Opportunity Button */}
+                      <Link
+                        href={`/festival/${fest.id}`}
+                        className="btn-liquid-glass-dark w-full text-center text-xs py-3 mt-2 flex items-center justify-center gap-1.5 font-medium"
+                      >
+                        Evaluate Opportunity
+                        <ChevronRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </PortalLayout>
+  );
+}
