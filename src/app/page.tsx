@@ -454,7 +454,7 @@ export default function Home() {
 
                       <div className="border-t border-brand-border pt-4 flex justify-end">
                         <Link
-                          href={`/festival/${fest.id}`}
+                          href={`/festival/${fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
                           className="btn-liquid-glass-dark text-xs py-2 px-6 flex items-center gap-1.5"
                         >
                           Evaluate Opportunity

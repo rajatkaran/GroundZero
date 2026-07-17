@@ -28,6 +28,7 @@ export default function DiscoverFestivals() {
   const [festivals, setFestivals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "date" | "price_asc" | "price_desc">("newest");
 
   // Social feed interaction states
   const [likedFestivals, setLikedFestivals] = useState<{ [key: string]: boolean }>({});
@@ -81,6 +82,22 @@ export default function DiscoverFestivals() {
     fetchFestivals();
   };
 
+  const sortedFestivals = [...festivals].sort((a, b) => {
+    if (sortBy === "newest") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    if (sortBy === "date") {
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    }
+    if (sortBy === "price_asc") {
+      return a.defaultStallPrice - b.defaultStallPrice;
+    }
+    if (sortBy === "price_desc") {
+      return b.defaultStallPrice - a.defaultStallPrice;
+    }
+    return 0;
+  });
+
   return (
     <PortalLayout activeTab="discover">
       <div className="flex flex-col gap-12">
@@ -115,7 +132,7 @@ export default function DiscoverFestivals() {
             </button>
           </form>
 
-          <div className="border-t border-brand-border pt-4 grid grid-cols-1 sm:grid-cols-3 gap-6 font-sans text-xs text-brand-secondary">
+          <div className="border-t border-brand-border pt-4 grid grid-cols-1 md:grid-cols-4 gap-6 font-sans text-xs text-brand-secondary">
             {/* Location Filter */}
             <div className="flex flex-col gap-2">
               <label className="uppercase tracking-wider font-semibold text-[10px]">Filter by Region</label>
@@ -160,6 +177,21 @@ export default function DiscoverFestivals() {
                 <option value="10000">10,000+ Medium Scale</option>
               </select>
             </div>
+
+            {/* Sort Selection */}
+            <div className="flex flex-col gap-2">
+              <label className="uppercase tracking-wider font-semibold text-[10px]">Sort Festivals</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full p-2.5 rounded-lg border border-brand-border bg-brand-card text-brand-primary focus:outline-none"
+              >
+                <option value="newest">Newest First</option>
+                <option value="date">Upcoming Date</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -180,9 +212,10 @@ export default function DiscoverFestivals() {
           <>
             {/* DESKTOP CARD GRID VIEW (landscape / widescreen) */}
             <div className="hidden lg:grid landscape:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-              {festivals.map((fest) => {
+              {sortedFestivals.map((fest) => {
                 const bookedCount = fest.stalls.filter((s: any) => s.status === "BOOKED").length;
                 const totalStalls = fest.stalls.length;
+                const slug = fest.name.toLowerCase().replace(/[^a-z0-9]/g, "");
                 return (
                   <div 
                     key={fest.id} 
@@ -191,7 +224,7 @@ export default function DiscoverFestivals() {
                     {/* Banner Image */}
                     <div 
                       className="relative w-full aspect-[16/10] bg-brand-bg/80 overflow-hidden cursor-pointer flex items-center justify-center border-b border-brand-border/40"
-                      onClick={() => router.push(`/festival/${fest.id}`)}
+                      onClick={() => router.push(`/festival/${slug}`)}
                     >
                       <img 
                         src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)} 
@@ -213,7 +246,7 @@ export default function DiscoverFestivals() {
                         {/* Title */}
                         <h3 
                           className="font-serif text-[24px] font-semibold text-brand-primary cursor-pointer hover:text-purple-400 transition-colors leading-tight"
-                          onClick={() => router.push(`/festival/${fest.id}`)}
+                          onClick={() => router.push(`/festival/${slug}`)}
                         >
                           {fest.name}
                         </h3>
@@ -279,9 +312,10 @@ export default function DiscoverFestivals() {
 
             {/* MOBILE SOCIAL FEED VIEW (vertical / narrow screen) */}
             <div className="lg:hidden landscape:hidden flex flex-col gap-10 w-full">
-              {festivals.map((fest) => {
+              {sortedFestivals.map((fest) => {
                 const bookedCount = fest.stalls.filter((s: any) => s.status === "BOOKED").length;
                 const totalStalls = fest.stalls.length;
+                const slug = fest.name.toLowerCase().replace(/[^a-z0-9]/g, "");
                 
                 // Like counts simulation
                 const isLiked = !!likedFestivals[fest.id];
@@ -312,7 +346,7 @@ export default function DiscoverFestivals() {
                     </div>
 
                     {/* Main Visual Image (Post Content) */}
-                    <div className="relative w-full aspect-[4/3] bg-brand-bg overflow-hidden cursor-pointer" onClick={() => router.push(`/festival/${fest.id}`)}>
+                    <div className="relative w-full aspect-[4/3] bg-brand-bg overflow-hidden cursor-pointer" onClick={() => router.push(`/festival/${slug}`)}>
                       <img 
                         src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)} 
                         alt={fest.name} 
@@ -387,7 +421,7 @@ export default function DiscoverFestivals() {
 
                       {/* Evaluate Opportunity Button */}
                       <Link
-                        href={`/festival/${fest.id}`}
+                        href={`/festival/${slug}`}
                         className="btn-liquid-glass-dark w-full text-center text-xs py-3 mt-2 flex items-center justify-center gap-1.5 font-medium"
                       >
                         Evaluate Opportunity

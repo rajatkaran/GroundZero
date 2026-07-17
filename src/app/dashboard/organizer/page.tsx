@@ -210,6 +210,25 @@ export default function OrganizerDashboard() {
                             </div>
                           </div>
 
+                          {/* Share Event Link Row */}
+                          <div className="flex items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans">
+                            <div className="flex flex-col gap-0.5 text-left">
+                              <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold">Share Event Page Link</span>
+                              <span className="font-semibold text-brand-primary">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const slug = fest.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+                                const url = `${window.location.origin}/festival/${slug}`;
+                                navigator.clipboard.writeText(url);
+                                alert("Share link copied to clipboard!");
+                              }}
+                              className="px-3 py-1.5 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer"
+                            >
+                              Copy Link
+                            </button>
+                          </div>
+
                           <div className="flex justify-end gap-3 flex-wrap">
                             <button 
                               onClick={() => setExpandedFests(prev => ({ ...prev, [fest.id]: !prev[fest.id] }))}
@@ -230,7 +249,7 @@ export default function OrganizerDashboard() {
                               🎨 Map Creator Canvas
                             </Link>
                             <Link 
-                              href={`/festival/${fest.id}`}
+                              href={`/festival/${fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
                               className="btn-liquid-glass-dark text-xs py-2 px-4"
                             >
                               View Live Listing

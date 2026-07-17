@@ -38,6 +38,24 @@ function LayoutMapper() {
   const [toolMode, setToolMode] = useState<"STALL" | "STAGE" | "WALKWAY" | "UTILITY">("STALL");
   const [showDecorationModal, setShowDecorationModal] = useState(false);
   const [decorationLabel, setDecorationLabel] = useState("");
+  const [showLabels, setShowLabels] = useState(true);
+  const [scale, setScale] = useState(1);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const handleResize = () => {
+      const width = wrapperRef.current?.getBoundingClientRect().width || 1000;
+      if (width < 1000) {
+        setScale(width / 1000);
+      } else {
+        setScale(1);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchFestivalAndStalls = async () => {
     if (!festivalId) return;
@@ -64,8 +82,8 @@ function LayoutMapper() {
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!canvasRef.current || showModal || festival?.mapLocked) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
 
     setIsDrawing(true);
     setStartPos({ x, y });
@@ -75,8 +93,8 @@ function LayoutMapper() {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDrawing || !currentBox || !canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
 
     const w = x - startPos.x;
     const h = y - startPos.y;
@@ -208,6 +226,44 @@ function LayoutMapper() {
     }
   };
 
+  const handleResetMap = async () => {
+    if (!confirm("Are you absolutely sure you want to reset the layout map? This will delete ALL mapped stalls and decorations for this festival. This action CANNOT be undone.")) {
+      return;
+    }
+    try {
+      const response = await fetch("/api/admin/adjust-festival", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          festivalId,
+          action: "RESET_MAP"
+        })
+      });
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert("Failed to reset map layout.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to reset map layout.");
+    }
+  };
+
+  const handleCopyLastStallSettings = () => {
+    if (stalls.length === 0) {
+      alert("No previous stalls mapped to copy settings from.");
+      return;
+    }
+    const lastStall = stalls[stalls.length - 1];
+    setDimensions(lastStall.dimensions || "10x10");
+    setBasePrice(lastStall.basePrice?.toString() || lastStall.publicPrice ? (lastStall.publicPrice - 10000).toString() : "35000");
+    setExpectedTraffic(lastStall.expectedTraffic?.toString() || "8.0");
+    setVisibilityScore(lastStall.visibilityScore?.toString() || "8.0");
+    setPowerGrid(lastStall.powerGrid || "Standard (15A)");
+    setDescription(lastStall.description || "");
+  };
+
   const handleSaveStall = async (e: React.FormEvent) => {
     e.preventDefault();
     if (festival?.mapLocked) {
@@ -216,46 +272,60 @@ function LayoutMapper() {
     }
     if (!stallNumber || !currentBox) return;
 
-    setSaveLoading(true);
-    try {
-      const coordinates = {
-        type: "rect",
-        x: Math.round(currentBox.x),
-        y: Math.round(currentBox.y),
-        w: Math.round(currentBox.w),
-        h: Math.round(currentBox.h)
-      };
+    const coordinates = {
+      type: "rect",
+      x: Math.round(currentBox.x),
+      y: Math.round(currentBox.y),
+      w: Math.round(currentBox.w),
+      h: Math.round(currentBox.h)
+    };
 
-      const response = await fetch("/api/stalls/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          festivalId,
-          stallNumber,
-          dimensions,
-          basePrice,
-          publicPrice: parseFloat(basePrice) + 10000,
-          coordinates,
-          expectedTraffic,
-          visibilityScore,
-          description,
-          powerGrid
-        })
-      });
+    const newStallOptimistic = {
+      id: "temp_" + Date.now(),
+      stallNumber,
+      dimensions,
+      basePrice: parseFloat(basePrice),
+      publicPrice: parseFloat(basePrice) + 10000,
+      coordinates: JSON.stringify(coordinates),
+      status: "AVAILABLE",
+      expectedTraffic: parseFloat(expectedTraffic) || 8.0,
+      visibilityScore: parseFloat(visibilityScore) || 8.0,
+      description,
+      powerGrid
+    };
 
+    // Optimistically update stalls state and close modal instantly
+    setStalls(prev => [...prev, newStallOptimistic]);
+    setShowModal(false);
+    setCurrentBox(null);
+
+    // Perform database save in background without locking UI
+    fetch("/api/stalls/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        festivalId,
+        stallNumber,
+        dimensions,
+        basePrice,
+        publicPrice: parseFloat(basePrice) + 10000,
+        coordinates,
+        expectedTraffic,
+        visibilityScore,
+        description,
+        powerGrid
+      })
+    }).then(async (response) => {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to map stall coordinates.");
+        throw new Error(errData.message || "Failed to save stall coordinates.");
       }
-
-      await fetchFestivalAndStalls();
-      setShowModal(false);
-      setCurrentBox(null);
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSaveLoading(false);
-    }
+      fetchFestivalAndStalls();
+    }).catch((err: any) => {
+      alert("Failed to save stall layout mapping: " + err.message);
+      // Rollback optimistic state
+      setStalls(prev => prev.filter(s => s.id !== newStallOptimistic.id));
+    });
   };
 
   const handleDeleteStall = async (stallId: string) => {
@@ -264,6 +334,10 @@ function LayoutMapper() {
       return;
     }
     if (!confirm("Are you sure you want to release and delete this stall mapping?")) return;
+
+    const originalStalls = stalls;
+    setStalls(prev => prev.filter(s => s.id !== stallId));
+
     try {
       const response = await fetch("/api/stalls/delete", {
         method: "POST",
@@ -274,10 +348,10 @@ function LayoutMapper() {
       if (!response.ok) {
         throw new Error("Failed to delete stall mapping.");
       }
-
-      await fetchFestivalAndStalls();
+      fetchFestivalAndStalls();
     } catch (err: any) {
       alert(err.message);
+      setStalls(originalStalls);
     }
   };
 
@@ -340,8 +414,19 @@ function LayoutMapper() {
           
           {/* Left Block: Drawing Canvas */}
           <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-              <span className="font-sans text-[10px] uppercase tracking-wider text-brand-secondary">LAYOUT CANVAS</span>
+             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              <div className="flex items-center gap-4">
+                <span className="font-sans text-[10px] uppercase tracking-wider text-brand-secondary">LAYOUT CANVAS</span>
+                <label className="flex items-center gap-1.5 text-[10px] font-sans text-brand-secondary font-semibold uppercase tracking-wider cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={showLabels}
+                    onChange={(e) => setShowLabels(e.target.checked)}
+                    className="rounded border-brand-border focus:ring-0 cursor-pointer"
+                  />
+                  Show Stall Numbers
+                </label>
+              </div>
               
               {/* Canvas Toolbox Toolbar */}
               {festival.mapLocked ? (
@@ -373,24 +458,27 @@ function LayoutMapper() {
               )}
             </div>
             
-            <div 
-              ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              className={`relative bg-brand-card border border-brand-border rounded-2xl shadow-inner select-none overflow-hidden ${
-                festival.mapLocked ? "cursor-not-allowed" : "cursor-crosshair"
-              }`}
-              style={{ 
-                width: "1000px", 
-                height: "600px", 
-                maxWidth: "100%",
-                backgroundImage: festival.layoutMapUrl ? `url(${festival.layoutMapUrl})` : "none",
-                backgroundSize: "100% 100%",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat"
-              }}
-            >
+            <div ref={wrapperRef} className="w-full overflow-hidden select-none" style={{ height: `${600 * scale}px` }}>
+              <div 
+                ref={canvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                className={`relative bg-brand-card border border-brand-border rounded-2xl shadow-inner select-none overflow-hidden ${
+                  festival.mapLocked ? "cursor-not-allowed" : "cursor-crosshair"
+                }`}
+                style={{ 
+                  width: "1000px", 
+                  height: "600px", 
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                  flexShrink: 0,
+                  backgroundImage: festival.layoutMapUrl ? `url(${festival.layoutMapUrl})` : "none",
+                  backgroundSize: "100% 100%",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat"
+                }}
+              >
               {/* Background blueprints visual simulation (only shown for default blueprints or blank canvas) */}
               {(!festival.layoutMapUrl || festival.layoutMapUrl === "/blueprints/mood_indigo_layout.png" || festival.layoutMapUrl === "/blueprints/oasis_layout.png") && (
                 <svg width="1000" height="600" className="absolute inset-0 w-full h-full pointer-events-none">
@@ -487,7 +575,17 @@ function LayoutMapper() {
                       height: `${coords.h}px`
                     }}
                   >
-                    {stall.stallNumber}
+                    {showLabels && (
+                      <span 
+                        style={{
+                          textShadow: "-2px -2px 0 var(--brand-card), 2px -2px 0 var(--brand-card), -2px 2px 0 var(--brand-card), 2px 2px 0 var(--brand-card)",
+                          color: "var(--brand-primary)"
+                        }}
+                        className="text-[10px] font-extrabold select-none"
+                      >
+                        {stall.stallNumber}
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -506,10 +604,24 @@ function LayoutMapper() {
               )}
             </div>
           </div>
+        </div>
 
-          {/* Right Block: Sidebar Stall List */}
           <div className="lg:col-span-4 flex flex-col gap-6 w-full">
             {/* Mapped Stalls Inventory List */}
+            <div className="flex justify-between items-center pb-2 border-b border-black/[0.06]">
+              <h3 className="font-serif font-medium text-[16px] text-brand-primary">
+                Mapped Stalls ({stalls.length})
+              </h3>
+              {!festival.mapLocked && stalls.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleResetMap}
+                  className="px-3 py-1.5 border border-red-500/20 bg-red-500/5 text-red-500 rounded-lg text-[10px] uppercase tracking-wider font-semibold hover:bg-red-500/10 transition-all cursor-pointer"
+                >
+                  Reset Map
+                </button>
+              )}
+            </div>
             <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2">
               {stalls.length === 0 ? (
                 <div className="bg-brand-card border border-brand-border rounded-xl p-6 text-center text-brand-secondary text-xs">
@@ -593,8 +705,19 @@ function LayoutMapper() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-brand-card border border-brand-border rounded-[24px] max-w-md w-full p-8 shadow-xl flex flex-col gap-6 font-sans">
             
-            <div className="flex flex-col gap-1.5 text-center">
-              <h3 className="font-serif text-[22px] font-medium text-brand-primary">Register Space</h3>
+            <div className="flex flex-col gap-1.5 text-center relative">
+              <div className="flex justify-between items-center w-full px-1 mb-2 border-b border-brand-border/40 pb-3">
+                <h3 className="font-serif text-[22px] font-medium text-brand-primary">Register Space</h3>
+                {stalls.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleCopyLastStallSettings}
+                    className="text-[10px] font-sans text-brand-primary bg-brand-bg px-2.5 py-1.5 rounded-lg border border-brand-border hover:bg-brand-border/30 transition-all font-semibold cursor-pointer"
+                  >
+                    📋 Copy Last Stall Settings
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-brand-secondary">Assign properties to coordinates X:{Math.round(currentBox.x)}, Y:{Math.round(currentBox.y)}</p>
             </div>
 

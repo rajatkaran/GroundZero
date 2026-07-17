@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+import { getOrganizerWelcomeEmail, getBrandWelcomeEmail, getVendorWelcomeEmail } from "@/lib/templates";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         role,
-        passwordHash: password || "12345678",
+        passwordHash: password || process.env.SEED_ADMIN_PASSWORD || "fallback_unsecure_pass",
         profile: {
           create: {
             companyName,
@@ -53,6 +55,38 @@ export async function POST(req: NextRequest) {
         profile: true
       }
     });
+
+    // Send Welcome Email asynchronously
+    try {
+      let emailHtml = "";
+      let subject = "Welcome to Ground Zero!";
+      
+      if (role === "ORGANIZER") {
+        emailHtml = getOrganizerWelcomeEmail(companyName);
+        subject = "Ground Zero - Welcome to the Organizer Network!";
+      } else if (role === "VENDOR") {
+        if (category === "SPONSOR" || category === "SPONSORS" || category === "BRAND") {
+          emailHtml = getBrandWelcomeEmail(companyName);
+          subject = "Ground Zero - Drive Offline Acquisition at ₹1 CAC";
+        } else {
+          emailHtml = getVendorWelcomeEmail(companyName);
+          subject = "Ground Zero - Start Booking Premium Stall Spaces";
+        }
+      }
+
+      if (emailHtml) {
+        // Send email (runs asynchronously in background, error caught locally)
+        sendEmail({
+          to: email,
+          subject,
+          html: emailHtml
+        }).catch(err => {
+          console.error("Async signup welcome email sending failed:", err);
+        });
+      }
+    } catch (emailError) {
+      console.error("Signup email formatting/trigger failed:", emailError);
+    }
 
     return NextResponse.json(
       {

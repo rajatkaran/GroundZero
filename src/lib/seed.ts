@@ -70,11 +70,15 @@ export async function checkAndSeedDatabase() {
     });
 
     if (!admin) {
+      const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+      if (!seedPassword) {
+        throw new Error("SEED_ADMIN_PASSWORD environment variable is not defined");
+      }
       await prisma.user.create({
         data: {
           email: "admin@thinkthrough.co.in",
           role: "ADMIN",
-          passwordHash: "12345678",
+          passwordHash: seedPassword,
           profile: {
             create: {
               companyName: "Ground Zero Operations Panel",

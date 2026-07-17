@@ -12,18 +12,40 @@ export async function GET(
       return NextResponse.json({ message: "Missing festival ID." }, { status: 400 });
     }
 
-    const festival = await prisma.festival.findUnique({
-      where: { id },
-      include: {
-        stalls: true,
-        organizer: {
-          select: {
-            profile: true,
-            email: true
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    let festival = null;
+
+    if (isUuid) {
+      festival = await prisma.festival.findUnique({
+        where: { id },
+        include: {
+          stalls: true,
+          organizer: {
+            select: {
+              profile: true,
+              email: true
+            }
           }
         }
-      }
-    });
+      });
+    } else {
+      const allFestivals = await prisma.festival.findMany({
+        include: {
+          stalls: true,
+          organizer: {
+            select: {
+              profile: true,
+              email: true
+            }
+          }
+        }
+      });
+      festival = allFestivals.find(f => {
+        const slug = f.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const rawSlug = f.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return slug === id || rawSlug === id || f.name.toLowerCase() === id.replace(/-/g, " ").toLowerCase();
+      }) || null;
+    }
 
     if (!festival) {
       return NextResponse.json({ message: "Festival not found." }, { status: 404 });

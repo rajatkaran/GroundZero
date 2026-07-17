@@ -64,6 +64,7 @@ export default function AdminDashboard() {
   const [opportunityScoreInput, setOpportunityScoreInput] = useState<number>(50);
   const [editingStallId, setEditingStallId] = useState<string | null>(null);
   const [stallCommissionInput, setStallCommissionInput] = useState<string>("");
+  const [bulkCommissionInput, setBulkCommissionInput] = useState<string>("10000");
 
   // CRM feedback edit states
   const [editingCrmUserId, setEditingCrmUserId] = useState<string | null>(null);
@@ -229,6 +230,33 @@ export default function AdminDashboard() {
       await fetchAdminData();
       setEditingStallId(null);
       alert("Stall pricing and commission adjusted!");
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUpdateBulkCommission = async () => {
+    if (!selectedFestId) return;
+    const commission = parseFloat(bulkCommissionInput);
+    if (isNaN(commission) || commission < 0) {
+      alert("Please enter a valid numeric commission.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to set the platform commission to ₹${commission.toLocaleString("en-IN")} for ALL stalls of this festival?`)) {
+      return;
+    }
+    setActionLoading(`bulkcomm-${selectedFestId}`);
+    try {
+      const response = await fetch("/api/admin/adjust-festival", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ festivalId: selectedFestId, bulkCommissionAmount: commission }),
+      });
+      if (!response.ok) throw new Error("Failed to update bulk commission.");
+      await fetchAdminData();
+      alert("Platform commission updated for all stalls of this festival!");
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -2628,6 +2656,30 @@ export default function AdminDashboard() {
                       <Loader2 size={12} className="animate-spin" />
                     ) : (
                       "Apply New Score"
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-3 p-5 bg-brand-bg border border-brand-border rounded-[20px]">
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-wider text-brand-secondary font-semibold">
+                    <span>Bulk Stall Markup (₹)</span>
+                  </div>
+                  <input
+                    type="number"
+                    value={bulkCommissionInput}
+                    onChange={(e) => setBulkCommissionInput(e.target.value)}
+                    placeholder="10000"
+                    className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-brand-card text-brand-primary text-xs focus:outline-none focus:border-brand-primary font-semibold text-right"
+                  />
+                  <button
+                    onClick={handleUpdateBulkCommission}
+                    disabled={actionLoading === `bulkcomm-${selectedFestId}`}
+                    className="w-full btn-liquid-glass-dark text-xs py-2 mt-2 flex justify-center items-center gap-1.5 cursor-pointer"
+                  >
+                    {actionLoading === `bulkcomm-${selectedFestId}` ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      "Apply to All Stalls"
                     )}
                   </button>
                 </div>

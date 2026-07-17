@@ -78,7 +78,7 @@ export default function FestivalDetail({ params }: { params: Promise<{ id: strin
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          festivalId: id,
+          festivalId: data.festival.id,
           vendorId: user.id,
           stallId,
           action // "book" (locks publicPrice) or "negotiate" (initiates counter-offer)

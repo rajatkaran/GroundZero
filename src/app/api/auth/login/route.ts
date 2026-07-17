@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       const isPasswordMatch = user.passwordHash === password;
       if (!isPasswordMatch) {
         return NextResponse.json(
-          { message: "Incorrect password. Default testing password for seeded accounts is 12345678." },
+          { message: "Incorrect password. Please verify the seed password in the server environment variables." },
           { status: 401 }
         );
       }

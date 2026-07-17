@@ -99,27 +99,22 @@ function EditFestivalForm() {
 
     setUploadingField(fieldName);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image.");
-      }
-
-      const res = await response.json();
-      if (fieldName === "banner") {
-        setBannerUrl(res.url);
-      } else if (fieldName === "layout") {
-        setLayoutMapUrl(res.url);
-      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (fieldName === "banner") {
+          setBannerUrl(base64String);
+        } else if (fieldName === "layout") {
+          setLayoutMapUrl(base64String);
+        }
+        setUploadingField(null);
+      };
+      reader.onerror = () => {
+        throw new Error("Failed to read file.");
+      };
+      reader.readAsDataURL(file);
     } catch (err: any) {
       alert(err.message || "File upload failed.");
-    } finally {
       setUploadingField(null);
     }
   };
@@ -137,25 +132,22 @@ function EditFestivalForm() {
     setUploadingField("gallery");
     try {
       const uploadedUrls: string[] = [];
+      let loadedCount = 0;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/uploads", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (response.ok) {
-          const res = await response.json();
-          uploadedUrls.push(res.url);
-        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          uploadedUrls.push(reader.result as string);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            setGalleryList((prev) => [...prev, ...uploadedUrls].slice(0, 10));
+            setUploadingField(null);
+          }
+        };
+        reader.readAsDataURL(file);
       }
-      setGalleryList((prev) => [...prev, ...uploadedUrls].slice(0, 10));
     } catch (err: any) {
       alert("Error uploading gallery images: " + err.message);
-    } finally {
       setUploadingField(null);
     }
   };
@@ -190,30 +182,25 @@ function EditFestivalForm() {
 
     setUploadingField("deck");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload deck.");
-      }
-
-      const res = await response.json();
-      const newDeck = {
-        id: "deck_" + Date.now(),
-        name: file.name,
-        url: res.url,
-        status: "PENDING",
-        uploadedAt: new Date().toISOString()
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        const newDeck = {
+          id: "deck_" + Date.now(),
+          name: file.name,
+          url: base64String,
+          status: "PENDING",
+          uploadedAt: new Date().toISOString()
+        };
+        setDecksList((prev) => [...prev, newDeck]);
+        setUploadingField(null);
       };
-      setDecksList((prev) => [...prev, newDeck]);
+      reader.onerror = () => {
+        throw new Error("Failed to read deck file.");
+      };
+      reader.readAsDataURL(file);
     } catch (err: any) {
       alert(err.message || "Deck upload failed.");
-    } finally {
       setUploadingField(null);
     }
   };
@@ -341,13 +328,13 @@ function EditFestivalForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="flex flex-col gap-1.5">
-            <label className="uppercase tracking-wider font-semibold text-[10px] text-brand-secondary">Campus / College Name*</label>
+            <label className="uppercase tracking-wider font-semibold text-[10px] text-brand-secondary">Venue / Host Name*</label>
             <input
               type="text"
               required
               value={collegeName}
               onChange={(e) => setCollegeName(e.target.value)}
-              placeholder="e.g. IIT Bombay"
+              placeholder="e.g. IIT Bombay / NESCO Center"
               className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-bg text-brand-primary placeholder:text-brand-secondary/40 focus:outline-none focus:border-brand-primary text-[13px]"
             />
           </div>

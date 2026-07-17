@@ -29,17 +29,27 @@ export async function POST(req: NextRequest) {
         
         // Update each stall's commission and public price
         for (const stall of stalls) {
+          const finalPrice = stall.basePrice + commission;
+          const traffic = stall.expectedTraffic;
+          const visibility = stall.visibilityScore;
+          const minSales = Math.round(finalPrice * (2.0 + (traffic * 0.1) + (visibility * 0.1)));
+          const maxSales = Math.round(finalPrice * (3.5 + (traffic * 0.2) + (visibility * 0.2)));
+
           await tx.stall.update({
             where: { id: stall.id },
             data: {
               commissionAmount: commission,
-              publicPrice: stall.basePrice + commission
+              publicPrice: finalPrice,
+              minSales,
+              maxSales
             }
           });
         }
       }
 
       return updatedFest;
+    }, {
+      timeout: 35000
     });
 
     return NextResponse.json(

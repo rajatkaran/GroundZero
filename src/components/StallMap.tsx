@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
@@ -32,6 +32,10 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  // Parse map dimensions safely
+  let width = 1000;
+  let height = 600;
+
   // Parse coordinates safely
   const parseCoordinates = (coordStr: string) => {
     try {
@@ -41,6 +45,8 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
       return { type: "rect", x: 100, y: 100, w: 60, h: 60 };
     }
   };
+
+  const [showLabels, setShowLabels] = useState(true);
 
   // Resolve color variables based on status
   const getStallColors = (status: string, isSelected: boolean) => {
@@ -118,8 +124,18 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
-            {/* Zoom Controls Overlay */}
-            <div className="absolute bottom-6 right-6 z-10 flex gap-2 bg-brand-card border border-brand-border p-2 rounded-full shadow-md">
+            {/* Zoom Controls Overlay with Show Labels Toggle */}
+            <div className="absolute bottom-6 right-6 z-10 flex items-center gap-2.5 bg-brand-card border border-brand-border p-2 rounded-full shadow-md">
+              <label className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-sans text-brand-secondary font-semibold uppercase tracking-wider cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showLabels}
+                  onChange={(e) => setShowLabels(e.target.checked)}
+                  className="rounded border-brand-border focus:ring-0 cursor-pointer"
+                />
+                Stall Labels
+              </label>
+              <div className="w-[1px] bg-brand-border h-4" />
               <button
                 onClick={() => zoomIn()}
                 className="p-2 border border-brand-border rounded-full hover:bg-brand-primary/5 text-brand-secondary hover:text-brand-primary transition-all focus:outline-none cursor-pointer"
@@ -144,13 +160,13 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
             </div>
 
             {/* Canvas Area */}
-            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="flex items-center justify-center">
+            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="w-full h-full">
               <div 
                 ref={mapRef}
-                className="relative bg-brand-card border border-brand-border rounded-xl shadow-inner select-none"
+                className="relative bg-brand-card border border-brand-border rounded-xl shadow-inner select-none flex-shrink-0"
                 style={{ 
-                  width: "1000px", 
-                  height: "600px",
+                  width: `${width}px`, 
+                  height: `${height}px`,
                   backgroundImage: layoutMapUrl ? `url(${layoutMapUrl})` : "none",
                   backgroundSize: "100% 100%",
                   backgroundPosition: "center",
@@ -159,9 +175,10 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
               >
                 {/* SVG Blueprint Layer */}
                 <svg
-                  width="1000"
-                  height="600"
-                  viewBox="0 0 1000 600"
+                  width={width}
+                  height={height}
+                  viewBox={`0 0 ${width} ${height}`}
+                  preserveAspectRatio="none"
                   className="absolute inset-0 w-full h-full pointer-events-none"
                 >
                   {/* Grid Lines Pattern (only shown for default blueprints or blank canvas) */}
@@ -172,7 +189,7 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
                           <path d="M 40 0 L 0 0 0 40" fill="none" stroke={isDark ? "rgba(245, 239, 230, 0.02)" : "rgba(0, 0, 0, 0.02)"} strokeWidth="0.5" />
                         </pattern>
                       </defs>
-                      <rect width="1000" height="600" fill="url(#blueprint-grid)" />
+                      <rect width={width} height={height} fill="url(#blueprint-grid)" />
 
                       {/* Stage & Walkway guidelines - only for pre-seeded template maps, not for blank canvas */}
                       {(layoutMapUrl === "/blueprints/mood_indigo_layout.png" || layoutMapUrl === "/blueprints/oasis_layout.png") && (
@@ -284,19 +301,25 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
                             onClick={() => onSelectStall(stall)}
                             className="transition-all duration-300 select-none"
                           />
-                          {/* Stall Number label */}
-                          <text
-                            x={coords.x + coords.w / 2}
-                            y={coords.y + coords.h / 2 + 4}
-                            fontFamily="var(--font-dm-sans), sans-serif"
-                            fontSize="12"
-                            fontWeight="600"
-                            fill={colors.textColor}
-                            textAnchor="middle"
-                            onClick={() => onSelectStall(stall)}
-                          >
-                            {stall.stallNumber}
-                          </text>
+                          {/* Stall Number label with readable outline stroke to prevent overlapping */}
+                          {showLabels && (
+                            <text
+                              x={coords.x + coords.w / 2}
+                              y={coords.y + coords.h / 2 + 4}
+                              fontFamily="var(--font-dm-sans), sans-serif"
+                              fontSize="10"
+                              fontWeight="bold"
+                              fill={colors.textColor}
+                              stroke={isDark ? "#121214" : "#FFFFFF"}
+                              strokeWidth={3}
+                              paintOrder="stroke fill"
+                              textAnchor="middle"
+                              onClick={() => onSelectStall(stall)}
+                              className="pointer-events-none"
+                            >
+                              {stall.stallNumber}
+                            </text>
+                          )}
                         </g>
                       );
                     }

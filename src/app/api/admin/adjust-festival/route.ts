@@ -74,6 +74,16 @@ export async function POST(req: NextRequest) {
               }
             });
           }
+        } else if (action === "RESET_MAP") {
+          await tx.stall.deleteMany({
+            where: { festivalId }
+          });
+          updatedFestival = await tx.festival.update({
+            where: { id: festivalId },
+            data: {
+              mapDimensions: JSON.stringify({ width: 1000, height: 600, decorations: [] })
+            }
+          });
         } else if (opportunityScore !== undefined) {
           updatedFestival = await tx.festival.update({
             where: { id: festivalId },
@@ -81,6 +91,33 @@ export async function POST(req: NextRequest) {
               opportunityScore: parseInt(opportunityScore, 10)
             }
           });
+        } else if (body.bulkCommissionAmount !== undefined) {
+          const bulkComm = parseFloat(body.bulkCommissionAmount);
+          if (!isNaN(bulkComm) && bulkComm >= 0) {
+            const stalls = await tx.stall.findMany({
+              where: { festivalId }
+            });
+            for (const stall of stalls) {
+              const finalPrice = stall.basePrice + bulkComm;
+              const traffic = stall.expectedTraffic;
+              const visibility = stall.visibilityScore;
+              const minSales = Math.round(finalPrice * (2.0 + (traffic * 0.1) + (visibility * 0.1)));
+              const maxSales = Math.round(finalPrice * (3.5 + (traffic * 0.2) + (visibility * 0.2)));
+
+              await tx.stall.update({
+                where: { id: stall.id },
+                data: {
+                  commissionAmount: bulkComm,
+                  publicPrice: finalPrice,
+                  minSales,
+                  maxSales
+                }
+              });
+            }
+            updatedFestival = await tx.festival.findUnique({
+              where: { id: festivalId }
+            });
+          }
         }
       }
 
@@ -114,6 +151,8 @@ export async function POST(req: NextRequest) {
       }
 
       return { updatedFestival, updatedStall };
+    }, {
+      timeout: 35000
     });
 
     return NextResponse.json(

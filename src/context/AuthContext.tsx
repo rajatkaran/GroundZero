@@ -23,6 +23,7 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, role: "VENDOR" | "ORGANIZER" | "ADMIN", password?: string, otp?: string) => Promise<void>;
+  loginWithGoogle: (credential: string, role: "VENDOR" | "ORGANIZER" | "ADMIN") => Promise<void>;
   signup: (email: string, role: "VENDOR" | "ORGANIZER" | "ADMIN", profileData: Partial<UserProfile>, metadata: any, password?: string) => Promise<void>;
   logout: () => void;
 }
@@ -109,6 +110,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (credential: string, role: "VENDOR" | "ORGANIZER" | "ADMIN") => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential, role }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      let data: any = {};
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        throw new Error("Unable to establish a secure connection with the Google Auth endpoint.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Google login failed.");
+      }
+
+      setUser(data.user);
+      localStorage.setItem("gz_session", JSON.stringify(data.user));
+      setLoading(false);
+
+      redirectBasedOnRole(data.user.role);
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const signup = async (
     email: string,
     role: "VENDOR" | "ORGANIZER" | "ADMIN",
@@ -167,12 +200,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else if (role === "ORGANIZER") {
       router.push("/dashboard/organizer");
     } else {
-      router.push("/dashboard/vendor");
+      router.push("/discover");
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

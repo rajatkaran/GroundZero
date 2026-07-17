@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Script from "next/script";
 
 function AuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { login, signup } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
   
   const initialMode = searchParams.get("type") === "signup" ? "signup" : "login";
   const [mode, setMode] = useState<"login" | "signup" | "forgot_password">(initialMode);
@@ -26,6 +27,48 @@ function AuthForm() {
   
   // Registration Role Selection
   const [selectedRole, setSelectedRole] = useState<"VENDOR" | "ORGANIZER" | "ADMIN" | null>(null);
+
+  const initGoogleAuth = () => {
+    if (typeof window !== "undefined" && (window as any).google) {
+      (window as any).google.accounts.id.initialize({
+        client_id: "369989823612-dummyclientid.apps.googleusercontent.com",
+        callback: handleGoogleCredentialResponse
+      });
+      
+      const container = document.getElementById("google-signin-btn");
+      if (container) {
+        (window as any).google.accounts.id.renderButton(container, {
+          theme: "outline",
+          size: "large",
+          width: container.getBoundingClientRect().width || 380,
+          text: "continue_with"
+        });
+      }
+    }
+  };
+
+  const handleGoogleCredentialResponse = async (response: any) => {
+    setLoading(true);
+    setError("");
+    try {
+      await loginWithGoogle(response.credential, selectedRole || "VENDOR");
+    } catch (err: any) {
+      setError(err.message || "Google authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const container = document.getElementById("google-signin-btn");
+      if (container && (window as any).google) {
+        initGoogleAuth();
+        clearInterval(interval);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [mode, selectedRole]);
   
   // Onboarding Step state
   const [step, setStep] = useState(1);
@@ -218,7 +261,7 @@ function AuthForm() {
         };
       }
 
-      await signup(email, selectedRole!, { companyName, contactPhone: phone, category }, metadata, password || "12345678");
+      await signup(email, selectedRole!, { companyName, contactPhone: phone, category }, metadata, password || undefined);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Failed to create account. Please try again.");
@@ -454,6 +497,25 @@ function AuthForm() {
                     {!loading && <ArrowRight size={14} />}
                   </button>
 
+                  {/* Google Login Container */}
+                  <div className="flex flex-col gap-3 mt-4 items-center">
+                    <div className="flex items-center w-full gap-2 text-brand-secondary text-[11px] uppercase tracking-wider font-semibold font-sans">
+                      <div className="flex-1 h-px bg-brand-border/40"></div>
+                      <span>Or</span>
+                      <div className="flex-1 h-px bg-brand-border/40"></div>
+                    </div>
+                    <div 
+                      id="google-signin-btn" 
+                      className="w-full flex justify-center items-center rounded-xl overflow-hidden hover:brightness-105 transition-all"
+                      style={{ minHeight: "44px" }}
+                    ></div>
+                    <Script 
+                      src="https://accounts.google.com/gsi/client" 
+                      strategy="afterInteractive" 
+                      onLoad={initGoogleAuth} 
+                    />
+                  </div>
+
                   <div className="text-center mt-4 text-[12px] font-sans text-brand-secondary">
                     Don't have access?{" "}
                     <button
@@ -658,7 +720,7 @@ function AuthForm() {
                                   type="password"
                                   value={password}
                                   onChange={(e) => setPassword(e.target.value)}
-                                  placeholder="Default is 12345678"
+                                  placeholder="Choose a password"
                                   className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-bg text-brand-primary placeholder:text-brand-secondary/40 focus:outline-none focus:border-brand-primary text-[14px]"
                                 />
                               </div>
@@ -782,7 +844,7 @@ function AuthForm() {
                                   type="password"
                                   value={password}
                                   onChange={(e) => setPassword(e.target.value)}
-                                  placeholder="Default is 12345678"
+                                  placeholder="Choose a password"
                                   className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-bg text-brand-primary placeholder:text-brand-secondary/40 focus:outline-none focus:border-brand-primary text-[14px]"
                                 />
                               </div>
@@ -802,12 +864,12 @@ function AuthForm() {
                                 />
                               </div>
                               <div className="flex flex-col gap-2">
-                                <label className="font-sans text-[11px] uppercase tracking-wider text-brand-secondary">College / Institution Name</label>
+                                <label className="font-sans text-[11px] uppercase tracking-wider text-brand-secondary">Venue / Organization Name</label>
                                 <input
                                   type="text"
                                   value={collegeName}
                                   onChange={(e) => setCollegeName(e.target.value)}
-                                  placeholder="e.g. IIT Bombay"
+                                  placeholder="e.g. IIT Bombay / NESCO Center"
                                   className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-bg text-brand-primary placeholder:text-brand-secondary/40 focus:outline-none focus:border-brand-primary text-[14px]"
                                 />
                               </div>
