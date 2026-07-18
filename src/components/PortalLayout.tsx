@@ -78,6 +78,7 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
       case "ORGANIZER":
         return [
           { name: "Overview", href: "/dashboard/organizer", emoji: "📊" },
+          { name: "Negotiations", href: "/dashboard/organizer/negotiations", emoji: "💬" },
           { name: "My Festivals", href: "/dashboard/organizer/festivals", emoji: "🎪" },
           { name: "Register Festival", href: "/dashboard/organizer/create", emoji: "✨" },
           { name: "Discover Network", href: "/discover", emoji: "🌐" },

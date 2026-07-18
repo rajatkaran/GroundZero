@@ -207,7 +207,7 @@ export default function OrganizerDashboard() {
                     activeFestivals.map((fest: any) => {
                       const bookedCount = fest.bookings.filter((b: any) => b.status === "PAID").length;
                       return (
-                        <div key={fest.id} className="bg-brand-card border border-brand-border rounded-[24px] p-8 shadow-sm flex flex-col justify-between gap-6 hover:border-brand-primary/20 transition-all">
+                        <div key={fest.id} className="bg-brand-card border border-brand-border rounded-[24px] p-4 sm:p-6 md:p-8 shadow-sm flex flex-col justify-between gap-6 hover:border-brand-primary/20 transition-all">
                           <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-1.5">
                               <h3 className="font-serif text-[20px] font-medium text-brand-primary">
@@ -248,10 +248,10 @@ export default function OrganizerDashboard() {
                           </div>
 
                           {/* Share Event Link Row */}
-                          <div className="flex items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans">
-                            <div className="flex flex-col gap-0.5 text-left">
+                          <div className="flex items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans gap-3 w-full min-w-0">
+                            <div className="flex flex-col gap-0.5 text-left min-w-0 flex-1">
                               <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold">Share Event Page Link</span>
-                              <span className="font-semibold text-brand-primary">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
+                              <span className="font-semibold text-brand-primary truncate block">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
                             </div>
                             <button
                               onClick={() => {
@@ -260,7 +260,7 @@ export default function OrganizerDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert("Share link copied to clipboard!");
                               }}
-                              className="px-3 py-1.5 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer"
+                              className="px-3 py-1.5 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer flex-shrink-0"
                             >
                               Copy Link
                             </button>
@@ -299,7 +299,7 @@ export default function OrganizerDashboard() {
                               {fest.stalls.length === 0 ? (
                                 <div className="text-brand-secondary/60 italic py-2">No stalls mapped yet. Use the Map Creator Canvas to draw stalls.</div>
                               ) : (
-                                <div className="border border-brand-border rounded-xl overflow-hidden bg-brand-bg/50 max-h-60 overflow-y-auto">
+                                <div className="border border-brand-border rounded-xl bg-brand-bg/50 max-h-60 overflow-y-auto overflow-x-auto w-full min-w-full">
                                   <table className="w-full text-left border-collapse">
                                     <thead>
                                       <tr className="border-b border-brand-border bg-brand-card font-semibold text-[10px] uppercase tracking-wider text-brand-secondary">

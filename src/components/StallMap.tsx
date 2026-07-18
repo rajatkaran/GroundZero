@@ -121,6 +121,8 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
         centerOnInit
         minScale={0.5}
         maxScale={3}
+        limitToBounds={false}
+        panning={{ velocityDisabled: true }}
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
