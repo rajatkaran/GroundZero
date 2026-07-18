@@ -64,6 +64,7 @@ model Festival {
   decks            String?      // JSON string of decks: [{ id, name, url, status, uploadedAt }]
   proposedArtistLineup String?
   mapLocked        Boolean      @default(false)
+  allowOrganizerDirectBook Boolean @default(false)
   mapLayoutHistory String?      // JSON string: [{ mapDimensions, updatedAt }]
   mediaHistory     String?      // JSON string: [{ bannerUrl, galleryUrls, updatedAt }]
 

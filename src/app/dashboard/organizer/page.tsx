@@ -80,6 +80,43 @@ export default function OrganizerDashboard() {
     }
   };
 
+  const [showDirectBookModal, setShowDirectBookModal] = useState(false);
+  const [selectedStallForDirect, setSelectedStallForDirect] = useState<any>(null);
+  const [directVendorEmail, setDirectVendorEmail] = useState("");
+  const [directFinalPrice, setDirectFinalPrice] = useState("");
+  const [directBookingLoading, setDirectBookingLoading] = useState(false);
+
+  const handleConfirmDirectBook = async () => {
+    if (!selectedStallForDirect || !user) return;
+    setDirectBookingLoading(true);
+    try {
+      const response = await fetch("/api/organizer/direct-book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stallId: selectedStallForDirect.id,
+          vendorEmail: directVendorEmail,
+          finalPrice: directFinalPrice || selectedStallForDirect.publicPrice,
+          organizerId: user.id
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to mark stall as booked.");
+      }
+      alert("Stall successfully booked and allocated!");
+      setShowDirectBookModal(false);
+      setSelectedStallForDirect(null);
+      setDirectVendorEmail("");
+      setDirectFinalPrice("");
+      window.location.reload();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setDirectBookingLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <PortalLayout activeTab="overview">
@@ -313,7 +350,20 @@ export default function OrganizerDashboard() {
                                                   ))}
                                                 </div>
                                               ) : (
-                                                <span className="opacity-40 italic">Available</span>
+                                                <div className="flex items-center justify-between gap-2">
+                                                  <span className="opacity-40 italic">Available</span>
+                                                  {fest.allowOrganizerDirectBook && stall.status !== "BOOKED" && (
+                                                    <button
+                                                      onClick={() => {
+                                                        setSelectedStallForDirect(stall);
+                                                        setShowDirectBookModal(true);
+                                                      }}
+                                                      className="text-[9px] bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded font-semibold cursor-pointer uppercase tracking-wider transition-all"
+                                                    >
+                                                      Direct Book
+                                                    </button>
+                                                  )}
+                                                </div>
                                               )}
                                             </td>
                                           </tr>
@@ -532,6 +582,66 @@ export default function OrganizerDashboard() {
         </div>
 
       </div>
+
+      {/* Direct Booking Modal */}
+      {showDirectBookModal && selectedStallForDirect && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-brand-bg border border-brand-border w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+            <div className="flex justify-between items-center border-b border-brand-border/40 pb-3">
+              <h3 className="font-serif font-medium text-lg text-brand-primary">
+                Direct Stall Allocation (Stall {selectedStallForDirect.stallNumber})
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowDirectBookModal(false);
+                  setSelectedStallForDirect(null);
+                  setDirectVendorEmail("");
+                  setDirectFinalPrice("");
+                }}
+                className="text-brand-secondary hover:text-brand-primary text-xs cursor-pointer font-bold bg-transparent border-none"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 font-sans text-xs">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase font-semibold tracking-wider text-brand-secondary">Vendor Email</label>
+                <input
+                  type="email"
+                  value={directVendorEmail}
+                  onChange={(e) => setDirectVendorEmail(e.target.value)}
+                  placeholder="vendor@company.com (optional)"
+                  className="w-full px-3 py-2.5 rounded-xl border border-brand-border bg-brand-card text-brand-primary focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase font-semibold tracking-wider text-brand-secondary">Final Allocation Price (₹)</label>
+                <input
+                  type="number"
+                  value={directFinalPrice}
+                  onChange={(e) => setDirectFinalPrice(e.target.value)}
+                  placeholder={`Default: ₹${selectedStallForDirect.publicPrice}`}
+                  className="w-full px-3 py-2.5 rounded-xl border border-brand-border bg-brand-card text-brand-primary focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleConfirmDirectBook}
+              disabled={directBookingLoading}
+              className="btn-liquid-glass-dark w-full py-3 mt-2 flex justify-center items-center gap-1.5 text-xs font-semibold"
+            >
+              {directBookingLoading ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                "Confirm & Mark Booked"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </PortalLayout>
   );
 }
