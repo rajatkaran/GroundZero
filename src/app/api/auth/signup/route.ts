@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { getOrganizerWelcomeEmail, getBrandWelcomeEmail, getVendorWelcomeEmail } from "@/lib/templates";
+import { sendVendorWelcomeWhatsApp } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
   try {
@@ -82,6 +83,12 @@ export async function POST(req: NextRequest) {
           html: emailHtml
         }).catch(err => {
           console.error("Async signup welcome email sending failed:", err);
+        });
+      }
+
+      if (role === "VENDOR" && contactPhone) {
+        sendVendorWelcomeWhatsApp(contactPhone, companyName).catch(err => {
+          console.error("Async signup welcome WhatsApp sending failed:", err);
         });
       }
     } catch (emailError) {

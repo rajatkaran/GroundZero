@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { sendEventPublishedWhatsApp } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +52,40 @@ export async function POST(req: NextRequest) {
     }, {
       timeout: 35000
     });
+
+    // Notify all verified vendors about the new festival going live
+    try {
+      const vendors = await prisma.user.findMany({
+        where: {
+          role: "VENDOR",
+          profile: {
+            verified: true,
+            contactPhone: { not: null }
+          }
+        },
+        include: {
+          profile: true
+        }
+      });
+
+      const slug = festival.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const festivalUrl = `https://www.thinkthrough.in/festival/${slug}`;
+
+      for (const vendor of vendors) {
+        if (vendor.profile?.contactPhone) {
+          sendEventPublishedWhatsApp(
+            vendor.profile.contactPhone,
+            vendor.profile.companyName || vendor.email.split("@")[0],
+            festival.name,
+            festivalUrl
+          ).catch(err => {
+            console.error(`Failed to send event publication WhatsApp to ${vendor.email}:`, err);
+          });
+        }
+      }
+    } catch (notifyError) {
+      console.error("Failed to fetch/notify vendors for new festival publish:", notifyError);
+    }
 
     return NextResponse.json(
       { message: "Festival approved and published to directory.", festival },
