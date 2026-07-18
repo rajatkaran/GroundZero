@@ -55,7 +55,7 @@ function LayoutMapper() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [loading]);
 
   const fetchFestivalAndStalls = async () => {
     if (!festivalId) return;
