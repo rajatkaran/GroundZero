@@ -115,10 +115,6 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
       
       {/* Transformation wrapper for pan and zoom */}
       <TransformWrapper
-        initialScale={1}
-        initialPositionX={0}
-        initialPositionY={0}
-        centerOnInit
         minScale={0.5}
         maxScale={3}
         limitToBounds={false}
