@@ -266,30 +266,30 @@ export default function OrganizerDashboard() {
                             </button>
                           </div>
 
-                          <div className="flex justify-end gap-3 flex-wrap">
+                          <div className="grid grid-cols-2 md:flex md:justify-end gap-3 w-full">
                             <button 
                               onClick={() => setExpandedFests(prev => ({ ...prev, [fest.id]: !prev[fest.id] }))}
-                              className="btn-liquid-glass text-xs py-2 px-4 cursor-pointer"
+                              className="btn-liquid-glass text-xs py-2 px-3 cursor-pointer flex items-center justify-center text-center"
                             >
-                              {expandedFests[fest.id] ? "Hide Stalls" : "Show Stalls List"}
+                              {expandedFests[fest.id] ? "Hide Stalls" : "Show Stalls"}
                             </button>
                             <Link 
                               href={`/dashboard/organizer/edit?festivalId=${fest.id}`}
-                              className="btn-liquid-glass text-xs py-2 px-4"
+                              className="btn-liquid-glass text-xs py-2 px-3 flex items-center justify-center text-center"
                             >
                               Edit Details
                             </Link>
                             <Link 
                               href={`/dashboard/organizer/mapper?festivalId=${fest.id}`}
-                              className="btn-liquid-glass text-xs py-2 px-4 flex items-center gap-1"
+                              className="btn-liquid-glass text-xs py-2 px-3 flex items-center justify-center text-center gap-1"
                             >
-                              🎨 Map Creator Canvas
+                              🎨 Map Canvas
                             </Link>
                             <Link 
                               href={`/festival/${fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
-                              className="btn-liquid-glass-dark text-xs py-2 px-4"
+                              className="btn-liquid-glass-dark text-xs py-2 px-3 flex items-center justify-center text-center"
                             >
-                              View Live Listing
+                              View Live
                             </Link>
                           </div>
 
@@ -344,9 +344,13 @@ export default function OrganizerDashboard() {
                                               ) : negotiatingBookings.length > 0 ? (
                                                 <div className="flex flex-col gap-0.5">
                                                   {negotiatingBookings.map((nb: any, i: number) => (
-                                                    <span key={i} className="text-brand-secondary text-[11px] block">
+                                                    <Link 
+                                                      key={i} 
+                                                      href={`/dashboard/negotiations?bookingId=${nb.id}`}
+                                                      className="text-brand-secondary hover:text-brand-primary text-[11px] block transition-colors underline decoration-brand-border/60 hover:decoration-brand-primary/50"
+                                                    >
                                                       💬 {nb.vendor?.profile?.companyName || nb.vendor?.email} (₹{nb.finalPrice.toLocaleString("en-IN")})
-                                                    </span>
+                                                    </Link>
                                                   ))}
                                                 </div>
                                               ) : (
