@@ -248,10 +248,10 @@ export default function OrganizerDashboard() {
                           </div>
 
                           {/* Share Event Link Row */}
-                          <div className="flex items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans gap-3 w-full min-w-0">
-                            <div className="flex flex-col gap-0.5 text-left min-w-0 flex-1">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans gap-3 w-full">
+                            <div className="flex flex-col gap-0.5 text-left min-w-0 w-full sm:w-auto">
                               <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold">Share Event Page Link</span>
-                              <span className="font-semibold text-brand-primary truncate block">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
+                              <span className="font-semibold text-brand-primary break-all">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
                             </div>
                             <button
                               onClick={() => {
@@ -260,7 +260,7 @@ export default function OrganizerDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert("Share link copied to clipboard!");
                               }}
-                              className="px-3 py-1.5 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer flex-shrink-0"
+                              className="w-full sm:w-auto text-center justify-center px-3 py-2 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer flex-shrink-0"
                             >
                               Copy Link
                             </button>
@@ -300,7 +300,7 @@ export default function OrganizerDashboard() {
                                 <div className="text-brand-secondary/60 italic py-2">No stalls mapped yet. Use the Map Creator Canvas to draw stalls.</div>
                               ) : (
                                 <div className="border border-brand-border rounded-xl bg-brand-bg/50 max-h-60 overflow-y-auto overflow-x-auto w-full min-w-full">
-                                  <table className="w-full text-left border-collapse">
+                                  <table className="w-full min-w-[750px] text-left border-collapse">
                                     <thead>
                                       <tr className="border-b border-brand-border bg-brand-card font-semibold text-[10px] uppercase tracking-wider text-brand-secondary">
                                         <th className="p-3">Stall No</th>
