@@ -160,7 +160,7 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
             </div>
 
             {/* Canvas Area */}
-            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="w-full h-full">
+            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="">
               <div 
                 ref={mapRef}
                 className="relative bg-brand-card border border-brand-border rounded-xl shadow-inner select-none flex-shrink-0"
