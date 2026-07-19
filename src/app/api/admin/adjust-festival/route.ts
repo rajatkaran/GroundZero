@@ -40,6 +40,16 @@ export async function POST(req: NextRequest) {
               }
             });
           }
+        } else if (action === "toggle_direct_booking") {
+          const fest = await tx.festival.findUnique({ where: { id: festivalId } });
+          if (fest) {
+            updatedFestival = await tx.festival.update({
+              where: { id: festivalId },
+              data: {
+                allowOrganizerDirectBook: !fest.allowOrganizerDirectBook
+              }
+            });
+          }
         } else if (action === "approve_deck" && deckId) {
           const fest = await tx.festival.findUnique({ where: { id: festivalId } });
           if (fest && fest.decks) {

@@ -80,6 +80,43 @@ export default function OrganizerDashboard() {
     }
   };
 
+  const [showDirectBookModal, setShowDirectBookModal] = useState(false);
+  const [selectedStallForDirect, setSelectedStallForDirect] = useState<any>(null);
+  const [directVendorEmail, setDirectVendorEmail] = useState("");
+  const [directFinalPrice, setDirectFinalPrice] = useState("");
+  const [directBookingLoading, setDirectBookingLoading] = useState(false);
+
+  const handleConfirmDirectBook = async () => {
+    if (!selectedStallForDirect || !user) return;
+    setDirectBookingLoading(true);
+    try {
+      const response = await fetch("/api/organizer/direct-book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stallId: selectedStallForDirect.id,
+          vendorEmail: directVendorEmail,
+          finalPrice: directFinalPrice || selectedStallForDirect.publicPrice,
+          organizerId: user.id
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to mark stall as booked.");
+      }
+      alert("Stall successfully booked and allocated!");
+      setShowDirectBookModal(false);
+      setSelectedStallForDirect(null);
+      setDirectVendorEmail("");
+      setDirectFinalPrice("");
+      window.location.reload();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setDirectBookingLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <PortalLayout activeTab="overview">
@@ -170,7 +207,7 @@ export default function OrganizerDashboard() {
                     activeFestivals.map((fest: any) => {
                       const bookedCount = fest.bookings.filter((b: any) => b.status === "PAID").length;
                       return (
-                        <div key={fest.id} className="bg-brand-card border border-brand-border rounded-[24px] p-8 shadow-sm flex flex-col justify-between gap-6 hover:border-brand-primary/20 transition-all">
+                        <div key={fest.id} className="bg-brand-card border border-brand-border rounded-[24px] p-4 sm:p-6 md:p-8 shadow-sm flex flex-col justify-between gap-6 hover:border-brand-primary/20 transition-all">
                           <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-1.5">
                               <h3 className="font-serif text-[20px] font-medium text-brand-primary">
@@ -211,10 +248,10 @@ export default function OrganizerDashboard() {
                           </div>
 
                           {/* Share Event Link Row */}
-                          <div className="flex items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans">
-                            <div className="flex flex-col gap-0.5 text-left">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-brand-bg/50 border border-brand-border/60 rounded-xl px-4 py-3 text-xs font-sans gap-3 w-full">
+                            <div className="flex flex-col gap-0.5 text-left min-w-0 w-full sm:w-auto">
                               <span className="text-[9px] uppercase tracking-wider text-brand-secondary font-semibold">Share Event Page Link</span>
-                              <span className="font-semibold text-brand-primary">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
+                              <span className="font-semibold text-brand-primary break-all">groundzero.thinkthrough.{fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
                             </div>
                             <button
                               onClick={() => {
@@ -223,36 +260,36 @@ export default function OrganizerDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert("Share link copied to clipboard!");
                               }}
-                              className="px-3 py-1.5 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer"
+                              className="w-full sm:w-auto text-center justify-center px-3 py-2 bg-brand-border text-brand-primary hover:bg-brand-primary hover:text-brand-bg rounded-lg text-[10px] font-semibold transition-all cursor-pointer flex-shrink-0"
                             >
                               Copy Link
                             </button>
                           </div>
 
-                          <div className="flex justify-end gap-3 flex-wrap">
+                          <div className="grid grid-cols-2 md:flex md:justify-end gap-3 w-full">
                             <button 
                               onClick={() => setExpandedFests(prev => ({ ...prev, [fest.id]: !prev[fest.id] }))}
-                              className="btn-liquid-glass text-xs py-2 px-4 cursor-pointer"
+                              className="btn-liquid-glass text-xs py-2 px-3 cursor-pointer flex items-center justify-center text-center"
                             >
-                              {expandedFests[fest.id] ? "Hide Stalls" : "Show Stalls List"}
+                              {expandedFests[fest.id] ? "Hide Stalls" : "Show Stalls"}
                             </button>
                             <Link 
                               href={`/dashboard/organizer/edit?festivalId=${fest.id}`}
-                              className="btn-liquid-glass text-xs py-2 px-4"
+                              className="btn-liquid-glass text-xs py-2 px-3 flex items-center justify-center text-center"
                             >
                               Edit Details
                             </Link>
                             <Link 
                               href={`/dashboard/organizer/mapper?festivalId=${fest.id}`}
-                              className="btn-liquid-glass text-xs py-2 px-4 flex items-center gap-1"
+                              className="btn-liquid-glass text-xs py-2 px-3 flex items-center justify-center text-center gap-1"
                             >
-                              🎨 Map Creator Canvas
+                              🎨 Map Canvas
                             </Link>
                             <Link 
                               href={`/festival/${fest.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
-                              className="btn-liquid-glass-dark text-xs py-2 px-4"
+                              className="btn-liquid-glass-dark text-xs py-2 px-3 flex items-center justify-center text-center"
                             >
-                              View Live Listing
+                              View Live
                             </Link>
                           </div>
 
@@ -262,8 +299,8 @@ export default function OrganizerDashboard() {
                               {fest.stalls.length === 0 ? (
                                 <div className="text-brand-secondary/60 italic py-2">No stalls mapped yet. Use the Map Creator Canvas to draw stalls.</div>
                               ) : (
-                                <div className="border border-brand-border rounded-xl overflow-hidden bg-brand-bg/50 max-h-60 overflow-y-auto">
-                                  <table className="w-full text-left border-collapse">
+                                <div className="border border-brand-border rounded-xl bg-brand-bg/50 max-h-60 overflow-y-auto overflow-x-auto w-full min-w-full">
+                                  <table className="w-full min-w-[750px] text-left border-collapse">
                                     <thead>
                                       <tr className="border-b border-brand-border bg-brand-card font-semibold text-[10px] uppercase tracking-wider text-brand-secondary">
                                         <th className="p-3">Stall No</th>
@@ -307,13 +344,30 @@ export default function OrganizerDashboard() {
                                               ) : negotiatingBookings.length > 0 ? (
                                                 <div className="flex flex-col gap-0.5">
                                                   {negotiatingBookings.map((nb: any, i: number) => (
-                                                    <span key={i} className="text-brand-secondary text-[11px] block">
+                                                    <Link 
+                                                      key={i} 
+                                                      href={`/dashboard/negotiations?bookingId=${nb.id}`}
+                                                      className="text-brand-secondary hover:text-brand-primary text-[11px] block transition-colors underline decoration-brand-border/60 hover:decoration-brand-primary/50"
+                                                    >
                                                       💬 {nb.vendor?.profile?.companyName || nb.vendor?.email} (₹{nb.finalPrice.toLocaleString("en-IN")})
-                                                    </span>
+                                                    </Link>
                                                   ))}
                                                 </div>
                                               ) : (
-                                                <span className="opacity-40 italic">Available</span>
+                                                <div className="flex items-center justify-between gap-2">
+                                                  <span className="opacity-40 italic">Available</span>
+                                                  {fest.allowOrganizerDirectBook && stall.status !== "BOOKED" && (
+                                                    <button
+                                                      onClick={() => {
+                                                        setSelectedStallForDirect(stall);
+                                                        setShowDirectBookModal(true);
+                                                      }}
+                                                      className="text-[9px] bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded font-semibold cursor-pointer uppercase tracking-wider transition-all"
+                                                    >
+                                                      Direct Book
+                                                    </button>
+                                                  )}
+                                                </div>
                                               )}
                                             </td>
                                           </tr>
@@ -532,6 +586,66 @@ export default function OrganizerDashboard() {
         </div>
 
       </div>
+
+      {/* Direct Booking Modal */}
+      {showDirectBookModal && selectedStallForDirect && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-brand-bg border border-brand-border w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+            <div className="flex justify-between items-center border-b border-brand-border/40 pb-3">
+              <h3 className="font-serif font-medium text-lg text-brand-primary">
+                Direct Stall Allocation (Stall {selectedStallForDirect.stallNumber})
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowDirectBookModal(false);
+                  setSelectedStallForDirect(null);
+                  setDirectVendorEmail("");
+                  setDirectFinalPrice("");
+                }}
+                className="text-brand-secondary hover:text-brand-primary text-xs cursor-pointer font-bold bg-transparent border-none"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 font-sans text-xs">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase font-semibold tracking-wider text-brand-secondary">Vendor Email</label>
+                <input
+                  type="email"
+                  value={directVendorEmail}
+                  onChange={(e) => setDirectVendorEmail(e.target.value)}
+                  placeholder="vendor@company.com (optional)"
+                  className="w-full px-3 py-2.5 rounded-xl border border-brand-border bg-brand-card text-brand-primary focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase font-semibold tracking-wider text-brand-secondary">Final Allocation Price (₹)</label>
+                <input
+                  type="number"
+                  value={directFinalPrice}
+                  onChange={(e) => setDirectFinalPrice(e.target.value)}
+                  placeholder={`Default: ₹${selectedStallForDirect.publicPrice}`}
+                  className="w-full px-3 py-2.5 rounded-xl border border-brand-border bg-brand-card text-brand-primary focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleConfirmDirectBook}
+              disabled={directBookingLoading}
+              className="btn-liquid-glass-dark w-full py-3 mt-2 flex justify-center items-center gap-1.5 text-xs font-semibold"
+            >
+              {directBookingLoading ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                "Confirm & Mark Booked"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </PortalLayout>
   );
 }

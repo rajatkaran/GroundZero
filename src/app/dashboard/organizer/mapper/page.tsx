@@ -55,7 +55,7 @@ function LayoutMapper() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [loading]);
 
   const fetchFestivalAndStalls = async () => {
     if (!festivalId) return;
@@ -105,6 +105,42 @@ function LayoutMapper() {
       w: Math.abs(w),
       h: Math.abs(h)
     });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    if (!canvasRef.current || showModal || festival?.mapLocked) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / scale;
+    const y = (touch.clientY - rect.top) / scale;
+
+    setIsDrawing(true);
+    setStartPos({ x, y });
+    setCurrentBox({ x, y, w: 0, h: 0 });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDrawing || !currentBox || !canvasRef.current || e.touches.length !== 1) return;
+    if (e.cancelable) e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / scale;
+    const y = (touch.clientY - rect.top) / scale;
+
+    const w = x - startPos.x;
+    const h = y - startPos.y;
+
+    setCurrentBox({
+      x: w < 0 ? x : startPos.x,
+      y: h < 0 ? y : startPos.y,
+      w: Math.abs(w),
+      h: Math.abs(h)
+    });
+  };
+
+  const handleTouchEnd = () => {
+    handleMouseUp();
   };
 
   const handleMouseUp = () => {
@@ -464,6 +500,9 @@ function LayoutMapper() {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
                 className={`relative bg-brand-card border border-brand-border rounded-2xl shadow-inner select-none overflow-hidden ${
                   festival.mapLocked ? "cursor-not-allowed" : "cursor-crosshair"
                 }`}

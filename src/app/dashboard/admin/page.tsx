@@ -325,6 +325,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleToggleDirectBooking = async (festId: string) => {
+    setActionLoading(`directbook-${festId}`);
+    try {
+      const response = await fetch("/api/admin/adjust-festival", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ festivalId: festId, action: "toggle_direct_booking" }),
+      });
+      if (!response.ok) throw new Error("Failed to toggle organizer direct booking permission.");
+      await fetchAdminData();
+      alert("Direct booking permission updated successfully!");
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleApproveLineup = async (festId: string) => {
     setActionLoading(`lineup-${festId}`);
     try {
@@ -1106,6 +1124,32 @@ export default function AdminDashboard() {
                                 "Unlock Editing"
                               ) : (
                                 "Lock Map & Prices"
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Direct Booking Switch */}
+                          <div className="flex items-center justify-between border border-brand-border bg-brand-card/40 rounded-xl p-3.5 mt-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-brand-primary">
+                                {selectedFest.allowOrganizerDirectBook ? "Direct Booking Enabled" : "Direct Booking Disabled"}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleToggleDirectBooking(selectedFest.id)}
+                              disabled={actionLoading !== null}
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+                                selectedFest.allowOrganizerDirectBook 
+                                  ? "bg-emerald-600 hover:bg-emerald-500 text-white" 
+                                  : "bg-brand-border hover:bg-brand-border/85 text-brand-primary"
+                              }`}
+                            >
+                              {actionLoading === `directbook-${selectedFest.id}` ? (
+                                <Loader2 size={10} className="animate-spin" />
+                              ) : selectedFest.allowOrganizerDirectBook ? (
+                                "Disable Direct"
+                              ) : (
+                                "Allow Direct Booking"
                               )}
                             </button>
                           </div>

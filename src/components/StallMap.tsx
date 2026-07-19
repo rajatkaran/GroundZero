@@ -115,12 +115,10 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
       
       {/* Transformation wrapper for pan and zoom */}
       <TransformWrapper
-        initialScale={1}
-        initialPositionX={0}
-        initialPositionY={0}
-        centerOnInit
         minScale={0.5}
         maxScale={3}
+        limitToBounds={false}
+        panning={{ velocityDisabled: true }}
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
@@ -160,7 +158,7 @@ export default function StallMap({ stalls, selectedStall, onSelectStall, layoutM
             </div>
 
             {/* Canvas Area */}
-            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="w-full h-full">
+            <TransformComponent wrapperClass="w-full !h-[450px]" contentClass="">
               <div 
                 ref={mapRef}
                 className="relative bg-brand-card border border-brand-border rounded-xl shadow-inner select-none flex-shrink-0"

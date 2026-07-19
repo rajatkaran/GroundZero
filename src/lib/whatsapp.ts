@@ -101,3 +101,35 @@ export async function sendReceiptWhatsApp(
     }
   });
 }
+
+// 4. Send Vendor Welcome Message on Signup
+export async function sendVendorWelcomeWhatsApp(
+  vendorPhone: string,
+  vendorName: string
+) {
+  return sendWhatsAppMessage({
+    to: vendorPhone,
+    templateName: "gz_vendor_welcome",
+    variables: {
+      vendorName
+    }
+  });
+}
+
+// 5. Send Notification when a new Event/Festival goes Live
+export async function sendEventPublishedWhatsApp(
+  vendorPhone: string,
+  vendorName: string,
+  festivalName: string,
+  festivalUrl: string
+) {
+  return sendWhatsAppMessage({
+    to: vendorPhone,
+    templateName: "gz_event_published",
+    variables: {
+      vendorName,
+      festivalName,
+      festivalUrl
+    }
+  });
+}

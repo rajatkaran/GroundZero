@@ -18,6 +18,7 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isPublicPath = pathname === "/discover" || pathname.startsWith("/festival/");
 
@@ -77,6 +78,7 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
       case "ORGANIZER":
         return [
           { name: "Overview", href: "/dashboard/organizer", emoji: "📊" },
+          { name: "Negotiations", href: "/dashboard/organizer/negotiations", emoji: "💬" },
           { name: "My Festivals", href: "/dashboard/organizer/festivals", emoji: "🎪" },
           { name: "Register Festival", href: "/dashboard/organizer/create", emoji: "✨" },
           { name: "Discover Network", href: "/discover", emoji: "🌐" },
@@ -162,6 +164,19 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
                 <div className="w-8 h-8" />
               )}
 
+              {/* Mobile Burger Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-full border border-brand-border bg-brand-bg text-brand-secondary hover:text-brand-primary hover:border-brand-primary transition-all flex items-center justify-center focus:outline-none cursor-pointer font-sans"
+                aria-label="Toggle mobile menu"
+              >
+                {mobileMenuOpen ? (
+                  <span className="text-[11px] font-extrabold w-3.5 h-3.5 flex items-center justify-center">✕</span>
+                ) : (
+                  <span className="text-[12px] font-extrabold w-3.5 h-3.5 flex items-center justify-center">☰</span>
+                )}
+              </button>
+
               {user ? (
                 <>
                   <div className="flex items-center gap-2.5">
@@ -200,6 +215,30 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-brand-border bg-brand-card py-4 px-6 flex flex-col gap-2 z-40 animate-in slide-in-from-top-2 duration-200">
+          {links.map((link) => {
+            const isActive = pathname === link.href || activeTab === link.name.toLowerCase();
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`font-sans text-[13px] tracking-wide flex items-center py-2.5 px-4 rounded-xl transition-all ${
+                  isActive
+                    ? "bg-brand-primary/10 text-brand-primary font-medium"
+                    : "text-brand-secondary hover:text-brand-primary hover:bg-brand-bg/50"
+                }`}
+              >
+                <span className="mr-2.5 text-base">{link.emoji}</span>
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 py-12 md:py-16">
