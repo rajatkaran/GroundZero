@@ -78,6 +78,7 @@ export default function LoginForm({ handleModeSwitch, initialRole = "VENDOR" }: 
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email) {
       setError("Please enter your email.");
       return;
@@ -97,9 +98,9 @@ export default function LoginForm({ handleModeSwitch, initialRole = "VENDOR" }: 
 
     try {
       if (loginMethod === "password") {
-        await login(email, selectedRole, password);
+        await login(email, password);
       } else {
-        await login(email, selectedRole, undefined, otp);
+        await login(email, undefined, otp);
       }
     } catch (err: any) {
       setError(err.message || "Invalid credentials. Please verify your role or password.");

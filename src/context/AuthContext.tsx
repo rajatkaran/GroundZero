@@ -22,7 +22,7 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN", password?: string, otp?: string) => Promise<void>;
+  login: (email: string, password?: string, otp?: string) => Promise<void>;
   loginWithGoogle: (credential: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN") => Promise<void>;
   signup: (email: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN", profileData: Partial<UserProfile>, metadata: any, password?: string) => Promise<void>;
   logout: () => void;
@@ -77,13 +77,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     verifyUserSession();
   }, []);
 
-  const login = async (email: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN", password?: string, otp?: string) => {
+  const login = async (email: string, password?: string, otp?: string) => {
     setLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role, password, otp }),
+        body: JSON.stringify({ email, password, otp }),
       });
 
       const contentType = response.headers.get("content-type");
