@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Sparkles } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [activeLink, setActiveLink] = useState("/discover");
 
   useEffect(() => {
     setMounted(true);
@@ -17,7 +18,7 @@ export default function Navigation() {
   return (
     <nav className="sticky top-0 z-50 border-b border-brand-border bg-brand-bg/70 backdrop-blur-md transition-all duration-300">
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="group flex items-center gap-3">
@@ -42,43 +43,42 @@ export default function Navigation() {
           <div className="hidden md:flex items-center gap-10">
             <Link
               href="/discover"
-              className="font-sans text-[13px] font-semibold tracking-wide text-purple-400 hover:text-brand-primary transition-colors flex items-center gap-1"
+              onClick={() => setActiveLink("/discover")}
+              className={`nav-link-premium font-sans text-[13px] font-semibold tracking-wide transition-colors flex items-center gap-1 ${activeLink === "/discover" ? "active-link text-brand-primary" : "text-brand-secondary hover:text-brand-primary"
+                }`}
             >
-              ✨ Discover
+              <Sparkles size={16} className="text-brand-primary" /> Discover
             </Link>
             <Link
               href="/#past-events"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
+              onClick={() => setActiveLink("/#past-events")}
+              className={`nav-link-premium font-sans text-[13px] tracking-wide transition-colors ${activeLink === "/#past-events" ? "active-link text-brand-primary" : "text-brand-secondary hover:text-brand-primary"
+                }`}
             >
               Past Events
             </Link>
             <Link
               href="/#features"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
+              onClick={() => setActiveLink("/#features")}
+              className={`nav-link-premium font-sans text-[13px] tracking-wide transition-colors ${activeLink === "/#features" ? "active-link text-brand-primary" : "text-brand-secondary hover:text-brand-primary"
+                }`}
             >
               Features
             </Link>
             <Link
               href="/#intelligence"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
+              onClick={() => setActiveLink("/#intelligence")}
+              className={`nav-link-premium font-sans text-[13px] tracking-wide transition-colors ${activeLink === "/#intelligence" ? "active-link text-brand-primary" : "text-brand-secondary hover:text-brand-primary"
+                }`}
             >
               Intelligence
             </Link>
-            <Link
-              href="/#vendors"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
-            >
-              For Vendors
-            </Link>
-            <Link
-              href="/#organizers"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
-            >
-              For Organizers
-            </Link>
+
             <Link
               href="/#contact"
-              className="font-sans text-[13px] tracking-wide text-brand-secondary hover:text-brand-primary transition-colors"
+              onClick={() => setActiveLink("/#contact")}
+              className={`nav-link-premium font-sans text-[13px] tracking-wide transition-colors ${activeLink === "/#contact" ? "active-link text-brand-primary" : "text-brand-secondary hover:text-brand-primary"
+                }`}
             >
               Contact
             </Link>
@@ -101,7 +101,7 @@ export default function Navigation() {
               Log In
             </Link>
             <Link href="/auth?type=signup" className="btn-liquid-glass">
-              Request Access
+              Signup
             </Link>
           </div>
 
@@ -127,7 +127,7 @@ export default function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
               className="font-sans text-[15px] font-semibold text-purple-400 hover:text-brand-primary transition-colors flex items-center gap-1.5"
             >
-              ✨ Discover Network
+              <Sparkles size={16} className="text-brand-primary" /> Discover Network
             </Link>
             <Link
               href="/#past-events"
@@ -150,20 +150,7 @@ export default function Navigation() {
             >
               Intelligence
             </Link>
-            <Link
-              href="/#vendors"
-              onClick={() => setMobileMenuOpen(false)}
-              className="font-sans text-[15px] text-brand-secondary hover:text-brand-primary transition-colors"
-            >
-              For Vendors
-            </Link>
-            <Link
-              href="/#organizers"
-              onClick={() => setMobileMenuOpen(false)}
-              className="font-sans text-[15px] text-brand-secondary hover:text-brand-primary transition-colors"
-            >
-              For Organizers
-            </Link>
+
             <Link
               href="/#contact"
               onClick={() => setMobileMenuOpen(false)}
@@ -171,9 +158,9 @@ export default function Navigation() {
             >
               Contact
             </Link>
-            
+
             <hr className="border-brand-border" />
-            
+
             <div className="flex flex-col gap-4">
               {mounted && (
                 <button
@@ -199,7 +186,7 @@ export default function Navigation() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="btn-liquid-glass text-center justify-center w-full"
               >
-                Request Access
+                Signup
               </Link>
             </div>
           </div>

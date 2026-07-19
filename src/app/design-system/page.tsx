@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Zap } from "lucide-react";
 
 export default function DesignSystemPage() {
   return (
@@ -235,7 +235,7 @@ export default function DesignSystemPage() {
                 </div>
               </div>
               <span className="gz-score-badge inline-flex items-center gap-1.5 text-[12px] font-medium px-3.5 py-1.5 rounded-[var(--radius-pill)] bg-[var(--gz-text)] text-[var(--gz-bg)]">
-                ⚡ 9.4 Score
+                <Zap size={12} className="fill-brand-bg text-brand-bg dark:fill-brand-bg dark:text-brand-bg" /> 9.4 Score
               </span>
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function DesignSystemPage() {
                 </div>
               </div>
               <span className="gz-score-badge inline-flex items-center gap-1.5 text-[12px] font-medium px-3.5 py-1.5 rounded-[var(--radius-pill)] bg-[var(--gz-text)] text-[var(--gz-bg)]">
-                ⚡ 8.7 Score
+                <Zap size={12} className="fill-brand-bg text-brand-bg dark:fill-brand-bg dark:text-brand-bg" /> 8.7 Score
               </span>
             </div>
           </div>

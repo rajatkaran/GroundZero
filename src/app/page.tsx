@@ -3,9 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Users, MapPin, DollarSign, Award, ArrowRight } from "lucide-react";
+import { TrendingUp, Users, MapPin, DollarSign, Award, ArrowRight, Target, Handshake, Diamond, Zap, Building, CheckCircle, Radio, Search, Map, Pin, CreditCard, FileText, Mic, GraduationCap, Briefcase, Ticket, ShoppingBag, Coffee, Shirt } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import BrandSection from "@/components/BrandSection";
+import VendorSection from "@/components/VendorSection";
+import OrganizerSection from "@/components/OrganizerSection";
+import FestivalStallYieldEstimator from "@/components/FestivalStallYieldEstimator";
+import GenericInfoSection from "@/components/GenericInfoSection";
 
 // Soft slide-up motion variants
 const fadeUp = {
@@ -86,6 +91,8 @@ export default function Home() {
     type: "Prime Corner"
   });
 
+  const [heroTab, setHeroTab] = useState<"vendors" | "organizers" | "sponsors">("sponsors");
+
   // Animated morphing keywords for Hero headline
   const morphWords = ["Opportunity", "Revenue Stream", "Audience", "Partnership", "Campaign", "Activation", "Market"];
   const [morphIndex, setMorphIndex] = useState(0);
@@ -160,7 +167,7 @@ export default function Home() {
       <Navigation />
 
       {/* SECTION 1: Hero Section */}
-      <section id="hero" className="relative overflow-hidden pt-36 pb-24 md:pt-48 md:pb-32 border-b border-brand-border">
+      <section id="hero" className="relative overflow-hidden flex-1 border-b border-brand-border flex flex-col justify-between min-h-0">
         {/* Deep Purple Glow & Concert backdrop for dark mode */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-1000 overflow-hidden">
           <div className="absolute inset-0 bg-cover bg-center mix-blend-luminosity opacity-[0.06] scale-105 blur-[2px]" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1200')` }} />
@@ -168,18 +175,17 @@ export default function Home() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.12)_0%,rgba(139,92,246,0)_70%)] blur-3xl" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center">
-            
+        <div className="relative z-10 mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 flex-1 flex flex-col justify-center w-full pt-6 pb-4 md:pt-8 md:pb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
             {/* Left Block: Text */}
-            <div className="lg:col-span-6 flex flex-col gap-8">
-              <motion.div 
+            <div className="lg:col-span-6 flex flex-col gap-6">
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col gap-6"
               >
-                <span className="gz-eyebrow">Ground Zero &middot; A ThinkThrough Product</span>
                 <h1 className="font-serif text-[48px] sm:text-[64px] lg:text-[76px] leading-[1.05] tracking-[-0.03em] font-medium text-brand-primary">
                   Discover Your Next<br />
                   <span className="relative inline-block overflow-hidden h-[1.15em] align-bottom min-w-[280px]">
@@ -202,11 +208,11 @@ export default function Home() {
                 </p>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap gap-4 items-center"
+                className="flex flex-wrap gap-4 items-center mb-2"
               >
                 <Link href="/auth?type=signup" className="btn-liquid-glass-dark">
                   Apply for Access &rarr;
@@ -215,152 +221,410 @@ export default function Home() {
                   Discover Opportunities
                 </Link>
               </motion.div>
+
             </div>
 
             {/* Right Block: Dashboard Mockup & Orbiting Cards */}
-            <div className="lg:col-span-6 relative w-full flex items-center justify-center min-h-[560px] py-12">
-              
+            <div className="lg:col-span-6 relative w-full flex flex-col items-center justify-center min-h-[420px] py-4 overflow-visible">
+
               {/* Outer Grid Bounds */}
               <div className="absolute inset-0 border border-dashed border-brand-border rounded-[32px] pointer-events-none" />
 
               {/* Main Central Dashboard Mockup */}
-              <div className="w-full max-w-[400px] bg-brand-card border border-brand-border rounded-[20px] overflow-hidden shadow-2xl relative z-10">
-                
-                {/* Mockup Topbar */}
-                <div className="px-5 py-4 border-b border-brand-border flex items-center gap-3 bg-brand-bg/50">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
-                  </div>
-                  <span className="font-sans text-[11px] text-brand-secondary tracking-wide ml-2">Festival Opportunity Intelligence</span>
-                </div>
+              <div className="w-full max-w-[400px] min-h-[380px] bg-brand-card border border-brand-border rounded-[20px] overflow-hidden shadow-2xl relative z-10">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={heroTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {heroTab === "vendors" && (
+                      <>
+                        {/* Mockup Topbar */}
+                        <div className="px-5 py-4 border-b border-brand-border flex items-center gap-3 bg-brand-bg/50">
+                          <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                          </div>
+                          <span className="font-sans text-[11px] text-brand-secondary tracking-wide ml-2">Festival Opportunity Intelligence</span>
+                        </div>
 
-                {/* Mockup Body */}
-                <div className="p-5 flex flex-col gap-4 bg-brand-card">
-                  {/* Grid of stats */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
-                      <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Expected Footfall</span>
-                      <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">48K</span>
-                      <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">3-day</span>
-                    </div>
-                    <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
-                      <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Available Stalls</span>
-                      <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">24</span>
-                      <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">of 60</span>
-                    </div>
-                    <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
-                      <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Opp. Score</span>
-                      <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">9.1</span>
-                      <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">Top 5%</span>
-                    </div>
-                  </div>
+                        {/* Mockup Body */}
+                        <div className="p-5 flex flex-col gap-4 bg-brand-card">
+                          {/* Grid of stats */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Expected Footfall</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">48K</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">3-day</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Available Stalls</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">24</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">of 60</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Opp. Score</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">9.1</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">Top 5%</span>
+                            </div>
+                          </div>
 
-                  {/* List items */}
-                  <div className="flex flex-col gap-2">
-                    <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-sans text-[11px] font-medium text-brand-primary">Mood Indigo — IIT Bombay</span>
-                        <span className="font-sans text-[9px] text-brand-secondary">Mumbai &middot; Jan 17–19 &middot; 52k expected</span>
-                      </div>
-                      <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">9.4</span>
-                    </div>
+                          {/* List items */}
+                          <div className="flex flex-col gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Mood Indigo — IIT Bombay</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Mumbai &middot; Jan 17–19 &middot; 52k expected</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">9.4</span>
+                            </div>
 
-                    <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-sans text-[11px] font-medium text-brand-primary">Rendezvous — IIT Delhi</span>
-                        <span className="font-sans text-[9px] text-brand-secondary">Delhi &middot; Oct 3–6 &middot; 40k expected</span>
-                      </div>
-                      <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">8.7</span>
-                    </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Rendezvous — IIT Delhi</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Delhi &middot; Oct 3–6 &middot; 40k expected</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">8.7</span>
+                            </div>
 
-                    <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-sans text-[11px] font-medium text-brand-primary">Saarang — IIT Madras</span>
-                        <span className="font-sans text-[9px] text-brand-secondary">Chennai &middot; Jan 9–13 &middot; 35k expected</span>
-                      </div>
-                      <span className="px-2 py-0.5 bg-transparent border border-brand-border text-brand-secondary text-[9px] font-bold rounded font-sans">7.9</span>
-                    </div>
-                  </div>
-                </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Saarang — IIT Madras</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Chennai &middot; Jan 9–13 &middot; 35k expected</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-transparent border border-brand-border text-brand-secondary text-[9px] font-bold rounded font-sans">7.9</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {heroTab === "organizers" && (
+                      <>
+                        <div className="px-5 py-4 border-b border-brand-border flex items-center gap-3 bg-brand-bg/50">
+                          <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                          </div>
+                          <span className="font-sans text-[11px] text-brand-secondary tracking-wide ml-2">Festival Management Console</span>
+                        </div>
+                        <div className="p-5 flex flex-col gap-4 bg-brand-card">
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Stalls Booked</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">85%</span>
+                              <span className="font-sans text-[8px] text-green-400 mt-0.5">+12% this week</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Listing Views</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">12K</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">High Traffic</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Sponsor Int.</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">High</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">Top 10%</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Coca-Cola (Title)</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Inquiry &middot; Term Sheet Sent</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">₹12L</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Red Bull (Beverage)</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Confirmed &middot; Pending</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">₹8.5L</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Local Food Chain</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Premium Stall Booking</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-transparent border border-brand-border text-brand-secondary text-[9px] font-bold rounded font-sans">₹2L</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {heroTab === "sponsors" && (
+                      <>
+                        <div className="px-5 py-4 border-b border-brand-border flex items-center gap-3 bg-brand-bg/50">
+                          <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-border" />
+                          </div>
+                          <span className="font-sans text-[11px] text-brand-secondary tracking-wide ml-2">Brand Audience Intelligence</span>
+                        </div>
+                        <div className="p-5 flex flex-col gap-4 bg-brand-card">
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Audience Match</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">92%</span>
+                              <span className="font-sans text-[8px] text-green-400 mt-0.5">Perfect Fit</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">Est. Reach</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">150K</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">Multi-channel</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl p-2.5 flex flex-col">
+                              <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">ROI Yield</span>
+                              <span className="font-serif text-[18px] sm:text-[20px] font-bold text-brand-primary mt-1">2.4x</span>
+                              <span className="font-sans text-[8px] text-brand-secondary/60 mt-0.5">Projected</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Mood Indigo (Title)</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Exclusive Naming Rights</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">Avail</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Rendezvous (Powered)</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Co-branding &middot; Main Stage</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-transparent border border-brand-border text-brand-secondary text-[9px] font-bold rounded font-sans">Nego</span>
+                            </div>
+                            <div className="bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-sans text-[11px] font-medium text-brand-primary">Saarang (Beverage)</span>
+                                <span className="font-sans text-[9px] text-brand-secondary">Category Exclusivity</span>
+                              </div>
+                              <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] font-bold rounded font-sans">Avail</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
-              {/* Floating Element 1: Opportunity Score Card */}
-              <motion.div 
-                {...float(0)}
-                className="absolute -top-4 -left-6 w-[230px] p-5 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">OPPORTUNITY SCORE</span>
-                    <span className="font-serif text-[24px] font-bold mt-0.5 text-brand-primary">94/100</span>
-                  </div>
-                  <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] uppercase tracking-wider rounded font-sans font-semibold">TIER-1</span>
-                </div>
-                <div className="flex flex-col gap-1.5 border-t border-brand-border pt-3 font-sans text-[11px] text-brand-secondary">
-                  <div className="flex justify-between">
-                    <span>Reputation</span>
-                    <span className="font-medium text-brand-primary">Elite Class</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Audience Quality</span>
-                    <span className="font-medium text-brand-primary">High Affluence</span>
-                  </div>
-                </div>
-              </motion.div>
+              {/* Floating Elements based on Tab */}
+              {heroTab === "vendors" && (
+                <>
+                  <motion.div {...float(0)} className="absolute -top-2 left-0 w-[210px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex flex-col">
+                        <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">OPPORTUNITY SCORE</span>
+                        <span className="font-serif text-[24px] font-bold mt-0.5 text-brand-primary">94/100</span>
+                      </div>
+                      <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] uppercase tracking-wider rounded font-sans font-semibold">TIER-1</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 border-t border-brand-border pt-3 font-sans text-[11px] text-brand-secondary">
+                      <div className="flex justify-between"><span>Reputation</span><span className="font-medium text-brand-primary">Elite Class</span></div>
+                      <div className="flex justify-between"><span>Audience Quality</span><span className="font-medium text-brand-primary">High Affluence</span></div>
+                    </div>
+                  </motion.div>
 
-              {/* Floating Element 2: Revenue Projection Card */}
-              <motion.div 
-                {...float(1.5)}
-                className="absolute -bottom-4 -left-2 w-[250px] p-5 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block"
-              >
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">REVENUE PROJECTION</span>
-                    <TrendingUp size={12} className="text-brand-secondary" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-serif text-[22px] font-bold text-brand-primary">₹1.8L – ₹2.5L</span>
-                    <span className="font-sans text-[10px] text-brand-secondary mt-0.5">Stall Space A3 (Food City)</span>
-                  </div>
-                  <div className="flex gap-1.5 items-center text-[10px] font-sans border-t border-brand-border pt-2.5 text-brand-secondary">
-                    <MapPin size={11} />
-                    <span>Premium Gate 2 Entrance</span>
-                  </div>
-                </div>
-              </motion.div>
+                  <motion.div {...float(1.5)} className="absolute -bottom-2 left-0 w-[230px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between"><span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">REVENUE PROJECTION</span><TrendingUp size={12} className="text-brand-secondary" /></div>
+                      <div className="flex flex-col"><span className="font-serif text-[22px] font-bold text-brand-primary">₹1.8L – ₹2.5L</span><span className="font-sans text-[10px] text-brand-secondary mt-0.5">Stall Space A3 (Food City)</span></div>
+                      <div className="flex gap-1.5 items-center text-[10px] font-sans border-t border-brand-border pt-2.5 text-brand-secondary"><MapPin size={11} /><span>Premium Gate 2 Entrance</span></div>
+                    </div>
+                  </motion.div>
 
-              {/* Floating Element 3: Stall Map Preview Scheduler */}
-              <motion.div 
-                {...float(3)}
-                className="absolute bottom-12 -right-8 w-[190px] p-4 bg-brand-card border border-brand-border rounded-[18px] shadow-lg z-20 hidden lg:block flex flex-col gap-2.5"
-              >
-                <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">STALL MAP PREVIEW</span>
-                <div className="grid grid-cols-4 gap-1 h-12 bg-brand-bg p-1.5 rounded-lg border border-brand-border items-center justify-center">
-                  <div className="h-full rounded bg-brand-primary flex items-center justify-center text-[9px] text-brand-bg font-medium">A1</div>
-                  <div className="h-full rounded border border-brand-border bg-brand-card flex items-center justify-center text-[9px] text-brand-primary/40">A2</div>
-                  <div className="h-full rounded bg-brand-primary/10 flex items-center justify-center text-[9px] text-brand-primary">A3</div>
-                  <div className="h-full rounded border border-brand-border bg-brand-card flex items-center justify-center text-[9px] text-brand-primary/40">A4</div>
-                </div>
-                <div className="flex justify-between items-center text-[9px] font-sans text-brand-secondary mt-1">
-                  <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-primary" /> Booked</span>
-                  <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-primary/20" /> Available</span>
-                </div>
-              </motion.div>
+                  <motion.div {...float(3)} className="absolute bottom-12 right-0 w-[175px] p-3 bg-brand-card border border-brand-border rounded-[18px] shadow-lg z-20 hidden lg:flex flex-col gap-2.5">
+                    <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">STALL MAP PREVIEW</span>
+                    <div className="grid grid-cols-4 gap-1 h-12 bg-brand-bg p-1.5 rounded-lg border border-brand-border items-center justify-center">
+                      <div className="h-full rounded bg-brand-primary flex items-center justify-center text-[9px] text-brand-bg font-medium">A1</div>
+                      <div className="h-full rounded border border-brand-border bg-brand-card flex items-center justify-center text-[9px] text-brand-primary/40">A2</div>
+                      <div className="h-full rounded bg-brand-primary/10 flex items-center justify-center text-[9px] text-brand-primary">A3</div>
+                      <div className="h-full rounded border border-brand-border bg-brand-card flex items-center justify-center text-[9px] text-brand-primary/40">A4</div>
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] font-sans text-brand-secondary mt-1">
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-primary" /> Booked</span>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-primary/20" /> Available</span>
+                    </div>
+                  </motion.div>
 
-              {/* Floating Element 4: Brand Emblem Badge */}
-              <motion.div 
-                {...float(2.2)}
-                className="absolute top-[20%] -right-10 w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-brand-border bg-[#b1b3b3] dark:bg-[#4e4c4c] shadow-2xl z-20 hidden sm:block"
-              >
-                <img src="/logo.jpg" alt="Ground Zero Logo" className="w-full h-full object-cover dark:invert dark:hue-rotate-180 dark:brightness-110" />
-              </motion.div>
+                  <motion.div {...float(2.2)} className="absolute top-[20%] right-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-brand-border bg-[#b1b3b3] dark:bg-[#4e4c4c] shadow-2xl z-20 hidden sm:block">
+                    <img src="/logo.jpg" alt="Ground Zero Logo" className="w-full h-full object-cover dark:invert dark:hue-rotate-180 dark:brightness-110" />
+                  </motion.div>
+                </>
+              )}
+
+              {heroTab === "organizers" && (
+                <>
+                  <motion.div {...float(0)} className="absolute -top-2 left-0 w-[210px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex flex-col">
+                        <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">BOOKING VELOCITY</span>
+                        <span className="font-serif text-[24px] font-bold mt-0.5 text-brand-primary">Rapid</span>
+                      </div>
+                      <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-[9px] uppercase tracking-wider rounded font-sans font-semibold">HIGH</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 border-t border-brand-border pt-3 font-sans text-[11px] text-brand-secondary">
+                      <div className="flex justify-between"><span>Demand Trend</span><span className="font-medium text-brand-primary">+14% MoM</span></div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div {...float(1.5)} className="absolute -bottom-2 left-0 w-[230px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between"><span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">PROJECTED REVENUE</span><TrendingUp size={12} className="text-brand-secondary" /></div>
+                      <div className="flex flex-col"><span className="font-serif text-[22px] font-bold text-brand-primary">₹18.5L</span><span className="font-sans text-[10px] text-brand-secondary mt-0.5">Event: Food City '26</span></div>
+                      <div className="flex gap-1.5 items-center text-[10px] font-sans border-t border-brand-border pt-2.5 text-brand-secondary"><MapPin size={11} /><span>Based on 85% occupancy</span></div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div {...float(3)} className="absolute bottom-12 right-0 w-[175px] p-3 bg-brand-card border border-brand-border rounded-[18px] shadow-lg z-20 hidden lg:flex flex-col gap-2.5">
+                    <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">APPROVAL QUEUE</span>
+                    <div className="flex flex-col gap-2 mt-2">
+                      <div className="flex items-center justify-between text-[10px] bg-brand-bg border border-brand-border rounded p-1.5"><span className="text-brand-primary">Zomato Kiosk</span><span className="text-yellow-400">Review</span></div>
+                      <div className="flex items-center justify-between text-[10px] bg-brand-bg border border-brand-border rounded p-1.5"><span className="text-brand-primary">Nike Activation</span><span className="text-yellow-400">Review</span></div>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+
+              {heroTab === "sponsors" && (
+                <>
+                  <motion.div {...float(0)} className="absolute -top-2 left-0 w-[210px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex flex-col">
+                        <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">DEMOGRAPHICS</span>
+                        <span className="font-serif text-[20px] font-bold mt-0.5 text-brand-primary">Gen Z, 18-24</span>
+                      </div>
+                      <span className="px-2 py-0.5 bg-brand-primary text-brand-bg text-[9px] uppercase tracking-wider rounded font-sans font-semibold">VERIFIED</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 border-t border-brand-border pt-3 font-sans text-[11px] text-brand-secondary">
+                      <div className="flex justify-between"><span>Affluence Level</span><span className="font-medium text-brand-primary">Premium</span></div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div {...float(1.5)} className="absolute -bottom-2 left-0 w-[230px] p-4 bg-brand-card border border-brand-border rounded-[20px] shadow-lg z-20 hidden md:block">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between"><span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">BRAND RECALL</span><TrendingUp size={12} className="text-brand-secondary" /></div>
+                      <div className="flex flex-col"><span className="font-serif text-[22px] font-bold text-brand-primary">High Impact</span><span className="font-sans text-[10px] text-brand-secondary mt-0.5">Top Tier Placements</span></div>
+                      <div className="flex gap-1.5 items-center text-[10px] font-sans border-t border-brand-border pt-2.5 text-brand-secondary"><MapPin size={11} /><span>Main Stage & Entry Gates</span></div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div {...float(3)} className="absolute bottom-12 right-0 w-[175px] p-3 bg-brand-card border border-brand-border rounded-[18px] shadow-lg z-20 hidden lg:flex flex-col gap-2.5">
+                    <span className="font-sans text-[9px] uppercase tracking-wider text-brand-secondary">CATEGORY EXCLUSIVITY</span>
+                    <div className="mt-2 text-center py-3 bg-brand-bg border border-brand-border rounded-lg text-brand-primary font-serif text-[14px]">
+                      Guaranteed for Title & Co-Sponsors
+                    </div>
+                  </motion.div>
+                </>
+              )}
+
+              {/* Tab Selector Buttons */}
+              <div className="relative mt-6 z-30 w-full max-w-[500px] p-1 bg-brand-bg border border-brand-border rounded-[12px] shadow-xl flex mx-auto">
+                <button onClick={() => setHeroTab('sponsors')} className={`flex-1 py-1.5 text-[11px] font-sans rounded-[8px] transition-all ${heroTab === 'sponsors' ? 'bg-brand-primary text-brand-bg font-bold shadow-sm' : 'text-brand-secondary hover:text-brand-primary'}`}>Are you a brand?</button>
+                <button onClick={() => setHeroTab('vendors')} className={`flex-1 py-1.5 text-[11px] font-sans rounded-[8px] transition-all ${heroTab === 'vendors' ? 'bg-brand-primary text-brand-bg font-bold shadow-sm' : 'text-brand-secondary hover:text-brand-primary'}`}>Are you a vendor?</button>
+                <button onClick={() => setHeroTab('organizers')} className={`flex-1 py-1.5 text-[11px] font-sans rounded-[8px] transition-all ${heroTab === 'organizers' ? 'bg-brand-primary text-brand-bg font-bold shadow-sm' : 'text-brand-secondary hover:text-brand-primary'}`}>Are you an organizer?</button>
+              </div>
 
             </div>
           </div>
         </div>
+
+
+        {/* Vendor / Organizer / Sponsor Cards (Full Width Bottom) */}
+        <div className="relative z-10 w-full mt-auto bg-brand-bg/80 backdrop-blur-md border-t border-brand-border py-5 lg:py-6">
+          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+              {/* Sponsor Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                onClick={() => {
+                  setHeroTab('sponsors');
+                  setTimeout(() => {
+                    const showcase = document.getElementById('sponsor-showcase');
+                    if (showcase) showcase.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }}
+                className="group relative h-auto min-h-[120px] bg-brand-card/50 border border-brand-border rounded-[20px] overflow-hidden shadow-sm hover:border-brand-primary/30 hover:bg-brand-card transition-all duration-300 flex items-center p-5 cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 flex flex-col gap-1">
+                  <span className="gz-eyebrow text-purple-400">For Brands & Sponsors</span>
+                  <h3 className="font-serif text-xl text-brand-primary">Are you a brand?</h3>
+                  <p className="font-sans text-[11px] text-brand-secondary leading-relaxed mt-1">Sponsor high-footfall events, get verified placement, and reach the right audience.</p>
+                </div>
+              </motion.div>
+
+              {/* Vendor Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                onClick={() => {
+                  setHeroTab('vendors');
+                  setTimeout(() => {
+                    const vendorSection = document.getElementById('vendor-comparison-section');
+                    if (vendorSection) vendorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }}
+                className="group relative h-auto min-h-[120px] bg-brand-card/50 border border-brand-border rounded-[20px] overflow-hidden shadow-sm hover:border-brand-primary/30 hover:bg-brand-card transition-all duration-300 flex items-center p-5 cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 flex flex-col gap-1">
+                  <span className="gz-eyebrow text-purple-400">For Vendors & Brands</span>
+                  <h3 className="font-serif text-xl text-brand-primary">Are you a vendor?</h3>
+                  <p className="font-sans text-[11px] text-brand-secondary leading-relaxed mt-1">Book high-yield stalls, secure sponsorships, and amplify your brand's reach.</p>
+                </div>
+              </motion.div>
+
+              {/* Organizer Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                onClick={() => {
+                  setHeroTab('organizers');
+                  setTimeout(() => {
+                    const cluster = document.getElementById('organizer-brand-cluster');
+                    if (cluster) cluster.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }}
+                className="group relative h-auto min-h-[120px] bg-brand-card/50 border border-brand-border rounded-[20px] overflow-hidden shadow-sm hover:border-brand-primary/30 hover:bg-brand-card transition-all duration-300 flex items-center p-5 cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-gradient-to-bl from-purple-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 flex flex-col gap-1">
+                  <span className="gz-eyebrow text-purple-400">For Organizers</span>
+                  <h3 className="font-serif text-xl text-brand-primary">Are you an organizer?</h3>
+                  <p className="font-sans text-[11px] text-brand-secondary leading-relaxed mt-1">List your event, manage stall bookings, and attract verified sponsors easily.</p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
       </section>
+
+      <GenericInfoSection pastFestivals={pastFestivals} onFestivalClick={handleOpenPastFestModal} />
+
+      {/* Always Render Sponsor Showcase */}
+      <BrandSection />
+
+      <VendorSection />
+
+      <OrganizerSection />
+
+
 
       {/* SECTION 2: Spotlight Festival Properties (moved immediately below Hero) */}
       <section className="py-24 md:py-36 border-b border-brand-border bg-brand-card">
@@ -389,7 +653,7 @@ export default function Home() {
                 const bookedCount = fest.stalls ? fest.stalls.filter((s: any) => s.status === "BOOKED").length : 0;
                 const totalStalls = fest.stalls ? fest.stalls.length : 0;
                 return (
-                  <motion.div 
+                  <motion.div
                     key={fest.id}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -398,9 +662,9 @@ export default function Home() {
                   >
                     {/* Banner Image */}
                     <div className="relative h-48 w-full overflow-hidden bg-brand-bg">
-                      <img 
-                        src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)} 
-                        alt={fest.name} 
+                      <img
+                        src={(fest.bannerUrl && (fest.bannerUrl.startsWith("http") || fest.bannerUrl.startsWith("/") || fest.bannerUrl.startsWith("data:"))) ? fest.bannerUrl : getFallbackImage(fest.id)}
+                        alt={fest.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         onError={(e: any) => {
                           e.target.onerror = null;
@@ -408,11 +672,11 @@ export default function Home() {
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      
+
                       {/* Quality Score Badge */}
                       <div className="absolute top-4 right-4">
                         <span className="px-3 py-1.5 bg-brand-bg/90 backdrop-blur-sm border border-brand-border text-brand-primary font-sans text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm">
-                          ⚡ {fest.opportunityScore} Score
+                          <Zap size={12} className="fill-brand-primary text-brand-primary" /> {fest.opportunityScore} Score
                         </span>
                       </div>
                     </div>
@@ -427,7 +691,7 @@ export default function Home() {
                         </div>
 
                         <p className="font-sans text-[13px] leading-6 text-brand-secondary">
-                          🎸 Headliners: <strong className="text-brand-primary font-medium">{fest.artistLineup || "To be announced"}</strong>
+                          <Mic size={14} className="inline mr-1" /> Headliners: <strong className="text-brand-primary font-medium">{fest.artistLineup || "To be announced"}</strong>
                         </p>
 
                         <div className="grid grid-cols-3 gap-4 border-t border-brand-border pt-4 font-sans text-xs text-brand-secondary">
@@ -519,10 +783,10 @@ export default function Home() {
               "/brands-5.png"
             ].map((imgUrl, idx) => (
               <div key={`brand-logo-${idx}`} className="flex items-center justify-center h-16 w-32">
-                <img 
-                  src={imgUrl} 
-                  alt="Partner Brand" 
-                  className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 dark:brightness-200 dark:contrast-150" 
+                <img
+                  src={imgUrl}
+                  alt="Partner Brand"
+                  className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 dark:brightness-200 dark:contrast-150"
                 />
               </div>
             ))}
@@ -548,7 +812,7 @@ export default function Home() {
                 A glance at high-yield activations, brand campaigns, and commercial stalls successfully executed on the Ground Zero opportunity network.
               </p>
             </div>
-            
+
             {/* Quick stats tag */}
             <div className="flex items-center gap-2 px-4 py-2 border border-brand-border bg-brand-card rounded-full font-sans text-xs text-brand-secondary font-medium">
               <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
@@ -563,45 +827,45 @@ export default function Home() {
                 type: "Music Event",
                 location: "Cosy Box, Delhi/NCR",
                 date: "Fri, 12 Jun 2026, 9:00 PM",
-                status: "Concluded ⚡",
+                status: <span className="flex items-center gap-1">Concluded <Zap size={12} /></span>,
                 img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=600",
-                tag: "High-Yield Activation ✅"
+                tag: <span className="flex items-center gap-1">High-Yield Activation <CheckCircle size={10} /></span>
               },
               {
                 title: "Nizami Bandhu Live",
                 type: "Jashn-e-Qawwali",
                 location: "KOPA, Lajpat Nagar",
                 date: "Sat, 6 Jun 2026, 9:30 PM",
-                status: "1.8x ROI Yield 🔥",
+                status: <span className="flex items-center gap-1">1.8x ROI Yield <TrendingUp size={12} /></span>,
                 img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=600",
-                tag: "Concluded 🎪"
+                tag: <span className="flex items-center gap-1">Concluded <Award size={10} /></span>
               },
               {
                 title: "Spotlight Comedy Club",
                 type: "Standup Comedy",
                 location: "Unplugged Courtyard, Delhi",
                 date: "Sun, 7 Jun 2026, 7:00 PM",
-                status: "100% Stall Occupancy 🎟️",
+                status: <span className="flex items-center gap-1">100% Stall Occupancy <Ticket size={12} /></span>,
                 img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?q=80&w=600",
-                tag: "Sold Out 🎙️"
+                tag: <span className="flex items-center gap-1">Sold Out <Mic size={10} /></span>
               },
               {
                 title: "Clay & Pottery Workshop",
                 type: "Creative Masterclass",
                 location: "Cafe Saka, Delhi/NCR",
                 date: "Daily, 10–14 Jun 2026",
-                status: "Success ✅",
+                status: <span className="flex items-center gap-1">Success <CheckCircle size={12} /></span>,
                 img: "https://images.unsplash.com/photo-1576016770956-debb63d90029?q=80&w=600",
-                tag: "Max Traffic Capture 🏺"
+                tag: <span className="flex items-center gap-1">Max Traffic Capture <Users size={10} /></span>
               },
               {
                 title: "Glow & Glam Ladies Night",
                 type: "Nightlife",
                 location: "Ivoryy Fusion Bar, Delhi",
                 date: "Thu, 11 Jun 2026, 8:00 PM",
-                status: "Full Capacity 🍸",
+                status: <span className="flex items-center gap-1">Full Capacity <Coffee size={12} /></span>,
                 img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=600",
-                tag: "Audience Sold Out 🍹"
+                tag: <span className="flex items-center gap-1">High Spends <DollarSign size={10} /></span>
               }
             ].map((evt, idx) => (
               <motion.div
@@ -620,7 +884,7 @@ export default function Home() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#09080F]/60 via-transparent to-transparent" />
-                  
+
                   {/* Floating Highlight Tag */}
                   <div className="absolute top-3 left-3">
                     <span className="px-2.5 py-1 bg-[#09080F]/90 backdrop-blur-sm border border-brand-border text-brand-primary font-sans text-[9px] font-semibold rounded-full shadow-sm">
@@ -634,7 +898,7 @@ export default function Home() {
                   <div className="flex flex-col gap-1.5">
                     <span className="font-serif text-[15px] font-semibold text-brand-primary leading-tight group-hover:text-purple-400 transition-colors">{evt.title}</span>
                     <span className="font-sans text-[11px] text-brand-secondary/80 flex items-center gap-1">
-                      📍 {evt.location}
+                      <MapPin size={12} className="text-brand-secondary/80 mr-0.5" /> {evt.location}
                     </span>
                   </div>
 
@@ -655,337 +919,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 4B: Past Festivals Archive (linked to #past-events) */}
-      <section id="past-events" className="py-24 md:py-36 border-b border-brand-border bg-brand-card relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-          <motion.div {...fadeUp} className="mb-20 text-center flex flex-col items-center gap-4">
-            <span className="gz-eyebrow">The Performance Archive</span>
-            <h2 className="font-serif text-[36px] sm:text-[48px] tracking-tight text-brand-primary font-medium">
-              Past Festivals Registry
-            </h2>
-            <p className="font-sans text-[15px] text-brand-secondary max-w-md font-light leading-relaxed">
-              Explore concluded event metrics. Audit verified footfall parameters, custom annotations, booth/stall pricing models, and actual brand & vendor revenue ranges.
-            </p>
-          </motion.div>
-
-          {pastFestivals.length === 0 ? (
-            <div className="bg-brand-bg border border-brand-border rounded-[24px] p-12 text-center font-sans text-xs text-brand-secondary">
-              No past event registries published on the network yet.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {pastFestivals.map((fest) => (
-                <div 
-                  key={fest.id}
-                  onClick={() => handleOpenPastFestModal(fest)}
-                  className="bg-brand-bg border border-brand-border rounded-[24px] overflow-hidden shadow-sm flex flex-col justify-between min-h-[380px] hover:border-brand-primary/20 dark:hover:border-purple-500/30 hover:shadow-md transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="relative h-44 w-full overflow-hidden bg-brand-bg">
-                    <img 
-                      src={fest.bannerUrl || getFallbackImage(fest.id)} 
-                      alt={fest.name} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    
-                    <div className="absolute top-4 right-4">
-                      <span className="px-2.5 py-1 bg-brand-primary text-brand-bg font-sans text-[10px] font-bold uppercase rounded-full">
-                        Concluded
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-6 flex flex-col justify-between flex-1 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-serif text-[20px] font-semibold text-brand-primary group-hover:text-purple-400 transition-colors">{fest.name}</span>
-                      <span className="font-sans text-[11px] text-brand-secondary flex items-center gap-1">
-                        📍 {fest.collegeName} &middot; {fest.location}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 border-t border-brand-border pt-4 font-sans text-[11px] text-brand-secondary">
-                      <div>
-                        <span className="block font-semibold uppercase text-[9px] tracking-wider text-brand-secondary/60">Actual Footfall</span>
-                        <span className="text-[13px] font-medium text-brand-primary">{(fest.expectedFootfall || 135000).toLocaleString("en-IN")}</span>
-                      </div>
-                      <div>
-                        <span className="block font-semibold uppercase text-[9px] tracking-wider text-brand-secondary/60">Stall Base Price</span>
-                        <span className="text-[13px] font-medium text-brand-primary">₹{(fest.defaultStallPrice || 30000).toLocaleString("en-IN")}</span>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-brand-border pt-4 flex justify-end">
-                      <span className="font-sans text-[11px] text-brand-secondary group-hover:text-brand-primary transition-colors flex items-center gap-1 font-semibold uppercase tracking-wider">
-                        View Audited Performance &rarr;
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Revenue Estimator Header */}
-          <div className="mt-24 mb-12 text-center flex flex-col items-center gap-3">
-            <span className="gz-eyebrow">Interactive Planning</span>
-            <h3 className="font-serif text-[28px] sm:text-[36px] tracking-tight text-brand-primary font-medium">
-              Stall Yield & ROI Estimator
-            </h3>
-            <p className="font-sans text-[14px] text-brand-secondary max-w-lg font-light leading-relaxed">
-              Estimate potential retail earnings, space booking overheads, cost of goods sold, and projected net profit margins for your brand.
-            </p>
-          </div>
-
-          <div className="bg-brand-bg border border-brand-border rounded-[28px] p-8 sm:p-12 shadow-md grid grid-cols-1 md:grid-cols-12 gap-10 font-sans">
-            {/* Controls Panel */}
-            <div className="md:col-span-7 flex flex-col gap-6">
-              {/* Category */}
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-wider font-semibold text-brand-secondary">Stall Category</label>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {[
-                    { id: "FOOD", label: "🍔 F&B / Food", rate: 4.5 },
-                    { id: "FASHION", label: "👗 Apparel", rate: 2.0 },
-                    { id: "MERCHANDISE", label: "📚 Merchandise", rate: 1.5 },
-                    { id: "GAMING", label: "🕹️ Activations", rate: 1.0 }
-                  ].map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => {
-                        setEstCategory(cat.id as any);
-                        setEstConversionRate(cat.rate);
-                        setEstDailyCustomers(Math.round(estFootfall * (cat.rate / 100)));
-                      }}
-                      className={`py-3 px-4 rounded-xl border text-center font-medium transition-all cursor-pointer ${
-                        estCategory === cat.id
-                          ? "bg-brand-primary text-brand-bg border-brand-primary"
-                          : "border-brand-border bg-brand-card text-brand-secondary hover:text-brand-primary"
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Size, Ticket & Operational Cost */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] uppercase tracking-wider font-semibold text-brand-secondary">Stall Rent (₹)</label>
-                  <input
-                    type="number"
-                    suppressHydrationWarning
-                    value={estStallRent || ""}
-                    onChange={(e) => setEstStallRent(e.target.value === "" ? 0 : parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-3 border border-brand-border bg-brand-card text-brand-primary rounded-xl focus:outline-none focus:border-brand-primary text-xs font-semibold"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] uppercase tracking-wider font-semibold text-brand-secondary">Avg. Ticket Size (₹)</label>
-                  <input
-                    type="number"
-                    suppressHydrationWarning
-                    value={estTicketSize || ""}
-                    onChange={(e) => setEstTicketSize(e.target.value === "" ? 0 : parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-3 border border-brand-border bg-brand-card text-brand-primary rounded-xl focus:outline-none focus:border-brand-primary text-xs font-semibold"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] uppercase tracking-wider font-semibold text-brand-secondary">Daily Op. Cost (₹)</label>
-                  <input
-                    type="number"
-                    suppressHydrationWarning
-                    value={estDailyOpCost || ""}
-                    onChange={(e) => setEstDailyOpCost(e.target.value === "" ? 0 : parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-3 border border-brand-border bg-brand-card text-brand-primary rounded-xl focus:outline-none focus:border-brand-primary text-xs font-semibold"
-                  />
-                </div>
-              </div>
-
-              {/* Conversion Rate & Duration */}
-              <div className="grid grid-cols-2 gap-4">
-                {/* Conversion Rate Slider & Customers Input */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center text-[10px] font-semibold text-brand-secondary uppercase">
-                    <span>Conversion Rate</span>
-                    <span className="text-brand-primary text-xs font-bold font-serif">{estConversionRate}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    suppressHydrationWarning
-                    min="0.5"
-                    max="15"
-                    step="0.5"
-                    value={estConversionRate}
-                    onChange={(e) => {
-                      const newRate = parseFloat(e.target.value);
-                      setEstConversionRate(newRate);
-                      setEstDailyCustomers(Math.round(estFootfall * (newRate / 100)));
-                    }}
-                    className="w-full h-1 bg-brand-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
-                  />
-                  <div className="flex justify-between text-[8.5px] text-brand-secondary/60">
-                    <span>0.5% (Low)</span>
-                    <span>15% (High)</span>
-                  </div>
-
-                  {/* Avg. Customers Input */}
-                  <div className="flex justify-between items-center mt-2 bg-brand-card/45 border border-brand-border/40 p-2 rounded-xl">
-                    <label className="text-[9px] uppercase tracking-wider font-semibold text-brand-secondary">Avg. Customers/Day</label>
-                    <input
-                      type="number"
-                      suppressHydrationWarning
-                      value={estDailyCustomers || ""}
-                      onChange={(e) => {
-                        const val = e.target.value === "" ? 0 : parseInt(e.target.value) || 0;
-                        setEstDailyCustomers(val);
-                        if (estFootfall > 0) {
-                          setEstConversionRate(Math.round(((val / estFootfall) * 100) * 10) / 10);
-                        }
-                      }}
-                      className="w-20 px-2 py-1 text-right border border-brand-border bg-brand-bg text-brand-primary rounded-lg text-xs font-semibold focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Event Duration Slider */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center text-[10px] font-semibold text-brand-secondary uppercase">
-                    <span>Event Duration</span>
-                    <span className="text-brand-primary text-xs font-bold font-serif">{estDuration} {estDuration === 1 ? 'Day' : 'Days'}</span>
-                  </div>
-                  <input
-                    type="range"
-                    suppressHydrationWarning
-                    min="1"
-                    max="5"
-                    step="1"
-                    value={estDuration}
-                    onChange={(e) => setEstDuration(parseInt(e.target.value))}
-                    className="w-full h-1 bg-brand-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
-                  />
-                  <div className="flex justify-between text-[8.5px] text-brand-secondary/60">
-                    <span>1 Day</span>
-                    <span>5 Days</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footfall Slider */}
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center text-[10px] font-semibold text-brand-secondary uppercase">
-                  <span>Festival Footfall</span>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="number"
-                      suppressHydrationWarning
-                      value={estFootfall || ""}
-                      onChange={(e) => {
-                        const val = e.target.value === "" ? 0 : parseInt(e.target.value) || 0;
-                        setEstFootfall(val);
-                        setEstDailyCustomers(Math.round(val * (estConversionRate / 100)));
-                      }}
-                      className="w-24 px-2 py-1 text-right border border-brand-border bg-brand-card text-brand-primary rounded-lg text-xs font-bold focus:outline-none"
-                    />
-                    <span className="text-[10px] text-brand-secondary font-medium lowercase">att.</span>
-                  </div>
-                </div>
-                <input
-                  type="range"
-                  suppressHydrationWarning
-                  min="5000"
-                  max="150000"
-                  step="5000"
-                  value={estFootfall}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setEstFootfall(val);
-                    setEstDailyCustomers(Math.round(val * (estConversionRate / 100)));
-                  }}
-                  className="w-full h-1 bg-brand-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
-                />
-                <div className="flex justify-between text-[9px] text-brand-secondary/60">
-                  <span>5,000 (Local Event)</span>
-                  <span>150,000 (Tier-1 College Fest)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Calculations Display Panel */}
-            <div className="md:col-span-5 bg-brand-card border border-brand-border rounded-2xl p-6 flex flex-col justify-between gap-6 self-stretch">
-              {(() => {
-                // Use user-defined daily customer count and event duration
-                const transactions = estDailyCustomers;
-                // Total gross sales is daily transactions * ticket size * event duration
-                const grossSales = transactions * estTicketSize * estDuration;
-                
-                const spacePrice = estStallRent;
-                const operationalExpenses = estDailyOpCost * estDuration; // Staff, travel, logistics scales with duration
-                
-                const totalExpenses = spacePrice + operationalExpenses;
-                const netProfit = grossSales - totalExpenses;
-                const roiMultiplier = spacePrice > 0 ? (grossSales / spacePrice).toFixed(1) : "0";
-
-                return (
-                  <div className="flex flex-col justify-between h-full gap-4">
-                    <div className="flex flex-col gap-3">
-                      <div>
-                        <span className="text-[9px] uppercase tracking-wider font-semibold text-brand-secondary">Projected Turnover</span>
-                        <h4 className="font-serif text-[28px] font-bold text-brand-primary leading-tight mt-0.5">
-                          ₹{grossSales.toLocaleString("en-IN")}
-                        </h4>
-                        <span className="text-[10px] text-brand-secondary/60 font-sans block mt-0.5">
-                          Based on {transactions * estDuration} total sales transactions ({transactions}/day)
-                        </span>
-                      </div>
-
-                      <div className="border-t border-brand-border pt-3 mt-1 flex flex-col gap-2 text-[11.5px] text-brand-secondary">
-                        <div className="flex justify-between">
-                          <span>Stall Rent</span>
-                          <span className="text-brand-primary">₹{spacePrice.toLocaleString("en-IN")}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Operational Expenses</span>
-                          <span className="text-brand-primary">₹{operationalExpenses.toLocaleString("en-IN")}</span>
-                        </div>
-                        <div className="flex justify-between border-t border-brand-border/40 pt-2 mt-1">
-                          <span>Estimated Net Margin</span>
-                          <strong className={netProfit > 0 ? "text-emerald-500 font-bold" : "text-red-400"}>
-                            ₹{Math.round(netProfit).toLocaleString("en-IN")}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Projected Yield / ROI</span>
-                          <strong className="text-brand-primary font-bold">{roiMultiplier}x stall rent</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2 pt-2 border-t border-brand-border">
-                      <Link
-                        href="/auth?type=signup"
-                        className="btn-liquid-glass-dark w-full text-center py-3 text-xs flex justify-center items-center gap-1.5"
-                      >
-                        Claim Your Stall Space &rarr;
-                      </Link>
-                      <span className="text-[9.5px] text-brand-secondary/50 text-center leading-relaxed">
-                        * Calculations are estimates based on typical college fest retail margins. Actual parameters may vary.
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* SECTION 4B: Past Festivals Archive (moved to Platform Proof Section) */}
 
       {/* SECTION 4.5: CAC Case Study / Brands Acquisition Metric Comparison */}
       <section className="py-24 md:py-36 border-b border-brand-border bg-brand-bg relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-          
+
           {/* Tagline Header */}
           <div className="mb-16 flex flex-col gap-3">
             <span className="gz-eyebrow">Customer Acquisition Cost (CAC)</span>
@@ -995,12 +934,12 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
+
             {/* Left Column: Visual Dashboard Side-by-Side Comparison */}
             <div className="lg:col-span-5 flex flex-col gap-6 w-full">
-              
+
               {/* Card 1: The Bot Trap (Digital Campaign) */}
-              <motion.div 
+              <motion.div
                 {...fadeUp}
                 className="border border-red-950/20 bg-red-950/5 dark:bg-red-950/10 rounded-2xl p-6 flex flex-col gap-4"
               >
@@ -1012,7 +951,7 @@ export default function Home() {
                     Low Trust
                   </span>
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] text-brand-secondary/60">Campaign Investment</span>
                   <h4 className="text-2xl font-bold font-serif text-red-400">₹40 Lakh</h4>
@@ -1021,7 +960,7 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-4 border-t border-red-950/10 pt-4 text-xs text-brand-secondary">
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-wider text-brand-secondary/60">Fabricated Reach</span>
-                    <strong className="text-red-400 font-bold">82% Bots 🤖</strong>
+                    <strong className="text-red-400 font-bold flex items-center gap-1.5">82% Bots <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bot"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></strong>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-wider text-brand-secondary/60">Real Imp. Cost</span>
@@ -1031,13 +970,13 @@ export default function Home() {
               </motion.div>
 
               {/* Card 2: Ground Zero Activation (Real Reach) */}
-              <motion.div 
+              <motion.div
                 {...fadeUp}
                 className="border border-emerald-950/20 bg-emerald-950/5 dark:bg-emerald-950/10 rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden shadow-sm"
               >
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold tracking-wider uppercase text-emerald-500 flex items-center gap-1.5">
-                    ⚡ Ground Zero Fest Activation
+                    <Zap size={14} className="fill-emerald-500 text-emerald-500" /> Ground Zero Fest Activation
                   </span>
                   <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full">
                     100% Real Reach
@@ -1072,11 +1011,11 @@ export default function Home() {
 
             {/* Right Column: Case Storytelling Narrative */}
             <div className="lg:col-span-7 flex flex-col gap-8">
-              
+
               {/* The Narrative Hook */}
               <div className="flex flex-col gap-4 font-sans font-light leading-relaxed text-brand-secondary text-[15px]">
                 <p>
-                  A brand invested <strong className="text-brand-primary font-medium">₹40 lakh</strong> in an Instagram campaign last month, but <strong className="text-brand-primary font-medium">82%</strong> of that &ldquo;reach&rdquo; was attributed to bots that never existed. In contrast, one brand activation booth at a college fest, costing <strong className="text-brand-primary font-medium">₹30,000</strong>, engaged <strong className="text-brand-primary font-medium">30,000 real students</strong> in person. 
+                  A brand invested <strong className="text-brand-primary font-medium">₹40 lakh</strong> in an Instagram campaign last month, but <strong className="text-brand-primary font-medium">82%</strong> of that &ldquo;reach&rdquo; was attributed to bots that never existed. In contrast, one brand activation booth at a college fest, costing <strong className="text-brand-primary font-medium">₹30,000</strong>, engaged <strong className="text-brand-primary font-medium">30,000 real students</strong> in person.
                 </p>
                 <p className="font-serif italic text-brand-primary text-base border-l-2 border-brand-border pl-4 my-2">
                   No scrolling, no skipping, no bots.
@@ -1111,11 +1050,11 @@ export default function Home() {
               {/* Why Offline Prevails Accordion list */}
               <div className="flex flex-col gap-4">
                 <span className="text-[10px] uppercase tracking-wider font-bold text-brand-primary">Why Offline Prevails (even in 2026)</span>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  
+
                   <div className="flex gap-3 items-start border border-brand-border bg-brand-card/45 p-4 rounded-xl">
-                    <span className="text-lg">🎯</span>
+                    <span className="text-brand-primary mt-0.5"><Target size={18} /></span>
                     <div className="flex flex-col gap-1 text-[13px]">
                       <strong className="text-brand-primary font-medium">Attention is Undivided</strong>
                       <p className="text-brand-secondary/70 leading-relaxed">A student at a fest isn&apos;t distracted by scrolling through ads; they are engaged at your booth, interacting with your product and team.</p>
@@ -1123,7 +1062,7 @@ export default function Home() {
                   </div>
 
                   <div className="flex gap-3 items-start border border-brand-border bg-brand-card/45 p-4 rounded-xl">
-                    <span className="text-lg">🤝</span>
+                    <span className="text-brand-primary mt-0.5"><Handshake size={18} /></span>
                     <div className="flex flex-col gap-1 text-[13px]">
                       <strong className="text-brand-primary font-medium">Trust is In-Person</strong>
                       <p className="text-brand-secondary/70 leading-relaxed">A sample, a demo, a conversation &mdash; these foster brand recall in ways a brief video cannot.</p>
@@ -1131,7 +1070,7 @@ export default function Home() {
                   </div>
 
                   <div className="flex gap-3 items-start border border-brand-border bg-brand-card/45 p-4 rounded-xl">
-                    <span className="text-lg">💎</span>
+                    <span className="text-brand-primary mt-0.5"><Diamond size={18} /></span>
                     <div className="flex flex-col gap-1 text-[13px]">
                       <strong className="text-brand-primary font-medium">It's Un-fakeable</strong>
                       <p className="text-brand-secondary/70 leading-relaxed">While followers can be purchased online, offline footfall cannot. A booth either attracts visitors or it doesn&apos;t.</p>
@@ -1139,7 +1078,7 @@ export default function Home() {
                   </div>
 
                   <div className="flex gap-3 items-start border border-brand-border bg-brand-card/45 p-4 rounded-xl">
-                    <span className="text-lg">⚡</span>
+                    <span className="text-brand-primary mt-0.5"><Zap size={18} /></span>
                     <div className="flex flex-col gap-1 text-[13px]">
                       <strong className="text-brand-primary font-medium">Exact Demographic</strong>
                       <p className="text-brand-secondary/70 leading-relaxed">Targets the exact demographic brands overpay to reach online &mdash; ages 18 to 24, with high disposable income, in one location.</p>
@@ -1183,7 +1122,7 @@ export default function Home() {
               </h2>
             </motion.div>
             <motion.div {...fadeUp} className="font-sans text-[15px] sm:text-[16px] text-brand-secondary leading-relaxed font-light">
-              Every transaction, negotiation, layout mapping, and agreement is standardized. 
+              Every transaction, negotiation, layout mapping, and agreement is standardized.
               From a festival organizer publishing their layout to a brand or vendor booking a booth/stall and receiving an agreement - every step happens inside Ground Zero.
             </motion.div>
           </div>
@@ -1192,15 +1131,15 @@ export default function Home() {
           <div className="w-full overflow-x-auto pb-4 scrollbar-none">
             <div className="flex items-center gap-0 min-w-[1200px] py-4">
               {[
-                { step: "01", icon: "🏛️", name: "Property Published" },
-                { step: "02", icon: "✅", name: "Opportunity Verified" },
-                { step: "03", icon: "📡", name: "Live Marketplace" },
-                { step: "04", icon: "🔍", name: "Brand Matches" },
-                { step: "05", icon: "🗺️", name: "Evaluate Traffic" },
-                { step: "06", icon: "📌", name: "Secure Space" },
-                { step: "07", icon: "🤝", name: "Direct Lock-In" },
-                { step: "08", icon: "💳", name: "Instant Escrow" },
-                { step: "09", icon: "📄", name: "License Confirmed" }
+                { step: "01", icon: <Building size={20} />, name: "Property Published" },
+                { step: "02", icon: <CheckCircle size={20} />, name: "Opportunity Verified" },
+                { step: "03", icon: <Radio size={20} />, name: "Live Marketplace" },
+                { step: "04", icon: <Search size={20} />, name: "Brand Matches" },
+                { step: "05", icon: <Map size={20} />, name: "Evaluate Traffic" },
+                { step: "06", icon: <Pin size={20} />, name: "Secure Space" },
+                { step: "07", icon: <Handshake size={20} />, name: "Direct Lock-In" },
+                { step: "08", icon: <CreditCard size={20} />, name: "Instant Escrow" },
+                { step: "09", icon: <FileText size={20} />, name: "License Confirmed" }
               ].map((node, i) => (
                 <div key={i} className="flex items-center gap-0">
                   <div className="flex flex-col gap-3 items-center text-center w-[130px] group">
@@ -1380,16 +1319,16 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-brand-card border border-brand-border rounded-[16px] p-8 hover:border-brand-primary/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col gap-6">
-              <span className="text-[24px]">👥</span>
+              <Users size={28} className="text-brand-primary" />
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[11px] font-medium text-brand-secondary uppercase tracking-wider">Audience Size</span>
                 <span className="font-serif text-[26px] font-bold text-brand-primary">52,000</span>
                 <span className="font-sans text-[11px] text-brand-secondary/60">3-day attendance</span>
               </div>
             </div>
-            
+
             <div className="bg-brand-card border border-brand-border rounded-[16px] p-8 hover:border-brand-primary/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col gap-6">
-              <span className="text-[24px]">🎤</span>
+              <Mic size={28} className="text-brand-primary" />
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[11px] font-medium text-brand-secondary uppercase tracking-wider">Headlining Attractions</span>
                 <span className="font-serif text-[26px] font-bold text-brand-primary">14</span>
@@ -1398,7 +1337,7 @@ export default function Home() {
             </div>
 
             <div className="bg-brand-card border border-brand-border rounded-[16px] p-8 hover:border-brand-primary/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col gap-6">
-              <span className="text-[24px]">🏫</span>
+              <GraduationCap size={28} className="text-brand-primary" />
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[11px] font-medium text-brand-secondary uppercase tracking-wider">Demographic Quality</span>
                 <span className="font-serif text-[26px] font-bold text-brand-primary">T1</span>
@@ -1407,7 +1346,7 @@ export default function Home() {
             </div>
 
             <div className="bg-brand-card border border-brand-border rounded-[16px] p-8 hover:border-brand-primary/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col gap-6">
-              <span className="text-[24px]">📈</span>
+              <TrendingUp size={28} className="text-brand-primary" />
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[11px] font-medium text-brand-secondary uppercase tracking-wider">Market Growth</span>
                 <span className="font-serif text-[26px] font-bold text-brand-primary">+23%</span>
@@ -1417,7 +1356,7 @@ export default function Home() {
 
             {/* Flagship metrics card - Spans 2 columns, dark background */}
             <div className="md:col-span-2 bg-brand-primary text-brand-bg border border-brand-primary dark:bg-gradient-to-br dark:from-[#211A3E] dark:to-[#13111F] dark:text-brand-primary dark:border-purple-500/30 rounded-[16px] p-8 flex flex-col gap-6 select-none">
-              <span className="text-[24px]">⚡</span>
+              <Zap size={32} className="text-brand-bg dark:text-brand-primary" />
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[11px] font-medium text-brand-bg/50 dark:text-brand-secondary/80 uppercase tracking-wider">Commercial Score</span>
                 <span className="font-serif text-[48px] sm:text-[56px] leading-none font-bold text-brand-bg dark:text-purple-300">9.4</span>
@@ -1498,10 +1437,10 @@ export default function Home() {
 
           {/* Map Canvas Frame */}
           <div className="bg-brand-card border border-brand-border rounded-[24px] overflow-hidden shadow-sm flex flex-col">
-            
+
             {/* Canvas body */}
             <div className="relative min-h-[480px] bg-brand-bg/30 p-6 flex flex-col lg:flex-row gap-8 justify-between items-stretch">
-              
+
               {/* Top/Left info overlay */}
               <div className="absolute top-4 left-4 right-4 h-12 flex items-center justify-between pointer-events-none select-none z-10">
                 <div className="flex gap-2 pointer-events-auto">
@@ -1527,11 +1466,11 @@ export default function Home() {
                   let statusClass = "";
 
                   if (stallData.status === "available") {
-                    statusClass = isSelected 
-                      ? "bg-brand-primary text-brand-bg border-2 border-brand-primary scale-105 z-10 shadow-lg font-bold" 
-                      : stallData.isHighlight 
-                      ? "bg-brand-card text-brand-primary border-2 border-brand-primary font-bold shadow-sm animate-pulse"
-                      : "bg-brand-card text-brand-secondary border border-brand-border hover:border-brand-primary dark:hover:border-purple-500/50 hover:scale-103 hover:z-10 hover:shadow-sm";
+                    statusClass = isSelected
+                      ? "bg-brand-primary text-brand-bg border-2 border-brand-primary scale-105 z-10 shadow-lg font-bold"
+                      : stallData.isHighlight
+                        ? "bg-brand-card text-brand-primary border-2 border-brand-primary font-bold shadow-sm animate-pulse"
+                        : "bg-brand-card text-brand-secondary border border-brand-border hover:border-brand-primary dark:hover:border-purple-500/50 hover:scale-103 hover:z-10 hover:shadow-sm";
                   } else if (stallData.status === "booked") {
                     statusClass = "bg-brand-primary/10 text-brand-primary/30 border border-brand-border cursor-not-allowed select-none";
                   } else if (stallData.status === "negotiation") {
@@ -1652,7 +1591,7 @@ export default function Home() {
               { title: "High-Value Business Matching", desc: "Filter by footfall, location, and demographics to match your products with the ideal audience." },
               { title: "Automated Licensing Contracts", desc: "Generate legally compliant digital license agreements with instant e-signatures." },
             ].map((feat, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -1691,8 +1630,8 @@ export default function Home() {
               { title: "Stall ROI Benchmarks", desc: "Evaluate real retail revenue averages, price elasticity indexes, and profit metrics categorised by stall size and utility needs." },
               { title: "Opportunity Scoring Engine", desc: "Utilise our proprietary algorithm to compute commercial scores based on artist line-ups, campus locations, and footfall quality." }
             ].map((moat, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="bg-brand-bg border border-brand-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-brand-primary/20 hover:shadow-md transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold text-sm">
@@ -1721,13 +1660,13 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
-              { icon: "🏛️", name: "Festival Organizers" },
-              { icon: "🎓", name: "College Committees" },
-              { icon: "🍽️", name: "Food Brands & Vendors" },
-              { icon: "🥤", name: "Beverage Brands" },
-              { icon: "👗", name: "Fashion & Retail Brands" }
+              { icon: <Building size={32} className="text-brand-primary" />, name: "Festival Organizers" },
+              { icon: <GraduationCap size={32} className="text-brand-primary" />, name: "College Committees" },
+              { icon: <Coffee size={32} className="text-brand-primary" />, name: "Food Brands & Vendors" },
+              { icon: <Coffee size={32} className="text-brand-primary" />, name: "Beverage Brands" },
+              { icon: <Shirt size={32} className="text-brand-primary" />, name: "Fashion & Retail Brands" }
             ].map((card, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -1765,7 +1704,7 @@ export default function Home() {
             {/* Column 1: College host reviews */}
             <div className="flex flex-col gap-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-400 pl-2 border-l-2 border-purple-500">Host Committees</h3>
-              
+
               {[
                 {
                   college: "IIT Bombay",
@@ -1849,7 +1788,7 @@ export default function Home() {
       <section id="vision" className="py-24 md:py-36 bg-brand-primary text-brand-bg dark:bg-gradient-to-b dark:from-[#09080F] dark:via-[#13111F] dark:to-[#09080F] dark:text-brand-primary dark:border-y dark:border-brand-border select-none">
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-32 items-center">
-            
+
             {/* Left stats */}
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-2">
@@ -1905,14 +1844,14 @@ export default function Home() {
       <AnimatePresence>
         {selectedPastFest && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-brand-card border border-brand-border rounded-[32px] max-w-4xl w-full p-8 shadow-2xl flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto font-sans"
             >
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setSelectedPastFest(null)}
                 className="absolute top-6 right-6 p-2 rounded-full border border-brand-border hover:bg-brand-primary/5 text-brand-secondary hover:text-brand-primary cursor-pointer transition-all focus:outline-none"
               >
@@ -1970,7 +1909,7 @@ export default function Home() {
                     <h4 className="font-serif text-[18px] font-semibold text-brand-primary border-b border-brand-border pb-2">
                       Interactive Audited Stall Map & Yields
                     </h4>
-                    
+
                     {(!pastFestDetails.stalls || pastFestDetails.stalls.length === 0) ? (
                       <div className="text-center p-6 border border-dashed border-brand-border rounded-xl text-xs text-brand-secondary">
                         Stall coordinates list is not mapped for this archive.
@@ -1983,19 +1922,19 @@ export default function Home() {
                             <span className="font-sans text-[10px] tracking-wider uppercase text-brand-secondary">Visual Floorplan Archive</span>
                             <span className="text-xs text-brand-secondary/70">Click any stall below to audit its actual consumer yield and ROI:</span>
                           </div>
-                          
+
                           <div className="grid grid-cols-3 gap-3">
                             {pastFestDetails.stalls.map((stall: any) => {
                               const isStallSelected = selectedPastStall?.id === stall.id;
                               const isStallBooked = stall.status === "BOOKED";
-                              
+
                               let statusClass = "border border-brand-border text-brand-secondary hover:border-brand-primary";
                               if (isStallSelected) {
                                 statusClass = "bg-brand-primary text-brand-bg font-bold border border-brand-primary scale-105 shadow-md";
                               } else if (isStallBooked) {
                                 statusClass = "bg-purple-950/20 text-purple-400 border border-purple-800/40 hover:border-purple-500";
                               }
-                              
+
                               return (
                                 <button
                                   key={stall.id}
@@ -2008,7 +1947,7 @@ export default function Home() {
                               );
                             })}
                           </div>
-                          
+
                           <div className="flex justify-between items-center text-[10px] font-sans text-brand-secondary border-t border-brand-border/40 pt-3">
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded bg-purple-950/20 border border-purple-800/40" /> Booked & Audited</span>
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded border border-brand-border" /> Unoccupied</span>
@@ -2020,14 +1959,14 @@ export default function Home() {
                           {selectedPastStall ? (
                             (() => {
                               const isSelectedStallBooked = selectedPastStall.status === "BOOKED";
-                              const approxSales = isSelectedStallBooked 
-                                ? Math.round((selectedPastStall.minSales + selectedPastStall.maxSales) / 2) 
+                              const approxSales = isSelectedStallBooked
+                                ? Math.round((selectedPastStall.minSales + selectedPastStall.maxSales) / 2)
                                 : 0;
                               const profit = isSelectedStallBooked ? (approxSales - selectedPastStall.publicPrice) : 0;
-                              const roiMargin = isSelectedStallBooked && selectedPastStall.publicPrice > 0 
-                                ? Math.round((profit / selectedPastStall.publicPrice) * 100) 
+                              const roiMargin = isSelectedStallBooked && selectedPastStall.publicPrice > 0
+                                ? Math.round((profit / selectedPastStall.publicPrice) * 100)
                                 : 0;
-                                
+
                               return (
                                 <div className="flex flex-col h-full justify-between gap-4 font-sans text-xs">
                                   <div className="flex justify-between items-start border-b border-brand-border/40 pb-3">
@@ -2037,11 +1976,10 @@ export default function Home() {
                                         {isSelectedStallBooked ? "Food & Beverage Vendor" : "Unoccupied Space"}
                                       </span>
                                     </div>
-                                    <span className={`px-2 py-0.5 border text-[9px] uppercase tracking-wider rounded-full font-semibold ${
-                                      isSelectedStallBooked 
-                                        ? "bg-emerald-950/20 text-emerald-450 border-emerald-800/40" 
-                                        : "bg-brand-card text-brand-secondary border-brand-border"
-                                    }`}>
+                                    <span className={`px-2 py-0.5 border text-[9px] uppercase tracking-wider rounded-full font-semibold ${isSelectedStallBooked
+                                      ? "bg-emerald-950/20 text-emerald-450 border-emerald-800/40"
+                                      : "bg-brand-card text-brand-secondary border-brand-border"
+                                      }`}>
                                       {isSelectedStallBooked ? "Audited Yield" : "No Activity"}
                                     </span>
                                   </div>
@@ -2099,7 +2037,7 @@ export default function Home() {
                     <h4 className="font-serif text-[18px] font-semibold text-brand-primary border-b border-brand-border pb-2">
                       Verified Participant Feedback
                     </h4>
-                    
+
                     {pastFestReviews.length === 0 ? (
                       <div className="text-center p-6 border border-dashed border-brand-border rounded-xl text-xs text-brand-secondary">
                         No participant feedback forms submitted for this archive yet.
