@@ -15,16 +15,16 @@ export interface UserProfile {
 export interface AuthUser {
   id: string;
   email: string;
-  role: "VENDOR" | "ORGANIZER" | "ADMIN";
+  role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN";
   profile?: UserProfile;
 }
 
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, role: "VENDOR" | "ORGANIZER" | "ADMIN", password?: string, otp?: string) => Promise<void>;
-  loginWithGoogle: (credential: string, role: "VENDOR" | "ORGANIZER" | "ADMIN") => Promise<void>;
-  signup: (email: string, role: "VENDOR" | "ORGANIZER" | "ADMIN", profileData: Partial<UserProfile>, metadata: any, password?: string) => Promise<void>;
+  login: (email: string, password?: string, otp?: string) => Promise<void>;
+  loginWithGoogle: (credential: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN") => Promise<void>;
+  signup: (email: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN", profileData: Partial<UserProfile>, metadata: any, password?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -77,13 +77,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     verifyUserSession();
   }, []);
 
-  const login = async (email: string, role: "VENDOR" | "ORGANIZER" | "ADMIN", password?: string, otp?: string) => {
+  const login = async (email: string, password?: string, otp?: string) => {
     setLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role, password, otp }),
+        body: JSON.stringify({ email, password, otp }),
       });
 
       const contentType = response.headers.get("content-type");
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loginWithGoogle = async (credential: string, role: "VENDOR" | "ORGANIZER" | "ADMIN") => {
+  const loginWithGoogle = async (credential: string, role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN") => {
     setLoading(true);
     try {
       const response = await fetch("/api/auth/google", {
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (
     email: string,
-    role: "VENDOR" | "ORGANIZER" | "ADMIN",
+    role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN",
     profileData: Partial<UserProfile>,
     metadata: any,
     password?: string
@@ -194,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
-  const redirectBasedOnRole = (role: "VENDOR" | "ORGANIZER" | "ADMIN") => {
+  const redirectBasedOnRole = (role: "VENDOR" | "ORGANIZER" | "BRAND" | "ADMIN") => {
     if (role === "ADMIN") {
       router.push("/dashboard/admin");
     } else if (role === "ORGANIZER") {

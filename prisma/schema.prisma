@@ -1,173 +1,150 @@
-datasource db {
-  provider = "sqlite"
-}
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
-// User Model with Multi-role capability
+datasource db {
+  provider = "sqlite"
+}
+
 model User {
-  id            String      @id @default(uuid())
-  email         String      @unique
-  passwordHash  String
-  role          String      // "VENDOR" | "ORGANIZER" | "ADMIN"
-  createdAt     DateTime    @default(now())
-  profile       Profile?
-  
-  // Relations
-  festivals     Festival[]  @relation("OrganizerFestivals")
-  bookings      Booking[]   @relation("VendorBookings")
-  participants  NegotiationParticipant[]
+  id           String                   @id @default(uuid())
+  email        String                   @unique
+  passwordHash String
+  role         String
+  createdAt    DateTime                 @default(now())
+  bookings     Booking[]                @relation("VendorBookings")
+  festivals    Festival[]               @relation("OrganizerFestivals")
+  participants NegotiationParticipant[]
+  profile      Profile?
 }
 
-// User details mapped to roles
 model Profile {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyName  String
-  contactPhone String?
-  category     String?  // e.g. "FOOD", "BEVERAGE", "FASHION", "GAMING", "SPONSOR"
-  verified     Boolean  @default(false)
-  metadata     String?  // JSON string representing onboarding questionnaire answers
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  companyName   String
+  contactPhone  String?
+  category      String?
+  verified      Boolean @default(false)
+  metadata      String?
   adminFeedback String?
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Festival opportunities
 model Festival {
-  id               String       @id @default(uuid())
-  organizerId      String
-  organizer        User         @relation("OrganizerFestivals", fields: [organizerId], references: [id], onDelete: Cascade)
-  name             String
-  collegeName      String
-  location         String
-  startDate        DateTime
-  endDate          DateTime
-  expectedFootfall Int
-  artistLineup     String       // Comma-separated list e.g. "Diljit Dosanjh, Divine"
-  demographics     String?      // e.g. "80% student youth, 20% external public"
-  opportunityScore Int          @default(50) // 1-100 score
-  layoutMapUrl     String?      // Uploaded PDF/Image layout URL
-  bannerUrl        String?      // Event banner image URL
-  galleryUrls      String?      // Comma-separated list of gallery image URLs
-  defaultStallPrice Float       @default(35000.0) // Organizer-defined average base price
-  mapDimensions    String?      // JSON string of dimensions { width: X, height: Y }
-  published        Boolean      @default(false)
-  createdAt        DateTime     @default(now())
-
-  // New fields
-  type             String       @default("FESTIVAL") // "FESTIVAL" | "EVENT"
-  timeline         String       @default("")
-  instagramUrl     String?
-  decks            String?      // JSON string of decks: [{ id, name, url, status, uploadedAt }]
+  id                   String    @id @default(uuid())
+  organizerId          String
+  name                 String
+  collegeName          String
+  location             String
+  startDate            DateTime
+  endDate              DateTime
+  expectedFootfall     Int
+  artistLineup         String
+  demographics         String?
+  opportunityScore     Int       @default(50)
+  layoutMapUrl         String?
+  bannerUrl            String?
+  galleryUrls          String?
+  defaultStallPrice    Float     @default(35000.0)
+  mapDimensions        String?
+  published            Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  type                 String    @default("FESTIVAL")
+  timeline             String    @default("")
+  instagramUrl         String?
+  decks                String?
   proposedArtistLineup String?
-  mapLocked        Boolean      @default(false)
-  allowOrganizerDirectBook Boolean @default(false)
-  mapLayoutHistory String?      // JSON string: [{ mapDimensions, updatedAt }]
-  mediaHistory     String?      // JSON string: [{ bannerUrl, galleryUrls, updatedAt }]
-
-  stalls           Stall[]
-  bookings         Booking[]
+  mapLocked            Boolean   @default(false)
+  mapLayoutHistory     String?
+  mediaHistory         String?
+  bookings             Booking[]
+  organizer            User      @relation("OrganizerFestivals", fields: [organizerId], references: [id], onDelete: Cascade)
+  stalls               Stall[]
 }
 
-// Stalls mapping to layout coordinates
 model Stall {
-  id             String       @id @default(uuid())
-  festivalId     String
-  festivalName   String       @default("")
-  festival       Festival     @relation(fields: [festivalId], references: [id], onDelete: Cascade)
-  stallNumber    String
-  dimensions     String       // e.g. "10x10", "12x12"
-  basePrice      Float        // Organizer hidden target price
-  publicPrice    Float        // Public GZ selling price
-  commissionAmount Float      @default(0.0) // Admin commission markup
-  status         String       // "AVAILABLE" | "RESERVED" | "NEGOTIATION" | "BOOKED" | "BLOCKED"
-  coordinates    String       // JSON representation of SVG path coordinates { type: 'rect', x: 10, y: 15, w: 100, h: 100 }
-  
-  // Traffic / Visibility scoring
-  expectedTraffic Float       // 1.0 to 10.0 scale
-  visibilityScore Float       // 1.0 to 10.0 scale
-  minSales       Float        // Projected min gross sales
-  maxSales       Float        // Projected max gross sales
-  
-  // New fields
-  description    String?
-  powerGrid      String       @default("Standard (15A)") // "Standard (15A)" | "Heavy (32A)" | "Three Phase"
-  
-  bookings       Booking[]
+  id               String    @id @default(uuid())
+  festivalId       String
+  festivalName     String    @default("")
+  stallNumber      String
+  dimensions       String
+  basePrice        Float
+  publicPrice      Float
+  commissionAmount Float     @default(0.0)
+  status           String
+  coordinates      String
+  expectedTraffic  Float
+  visibilityScore  Float
+  minSales         Float
+  maxSales         Float
+  description      String?
+  powerGrid        String    @default("Standard (15A)")
+  bookings         Booking[]
+  festival         Festival  @relation(fields: [festivalId], references: [id], onDelete: Cascade)
 }
 
-// Vendor Stall Booking
 model Booking {
-  id          String        @id @default(uuid())
+  id          String       @id @default(uuid())
   festivalId  String
-  festival    Festival      @relation(fields: [festivalId], references: [id], onDelete: Cascade)
   vendorId    String
-  vendor      User          @relation("VendorBookings", fields: [vendorId], references: [id], onDelete: Cascade)
   stallId     String
-  stall       Stall         @relation(fields: [stallId], references: [id], onDelete: Cascade)
-  status      String        // "PENDING" | "NEGOTIATING" | "APPROVED" | "PAID" | "CANCELLED"
+  status      String
   finalPrice  Float
-  contractUrl String?       // Path to generated legal contract
-  createdAt   DateTime      @default(now())
-
+  contractUrl String?
+  createdAt   DateTime     @default(now())
+  stall       Stall        @relation(fields: [stallId], references: [id], onDelete: Cascade)
+  vendor      User         @relation("VendorBookings", fields: [vendorId], references: [id], onDelete: Cascade)
+  festival    Festival     @relation(fields: [festivalId], references: [id], onDelete: Cascade)
   negotiation Negotiation?
 }
 
-// Live Negotiation Center
 model Negotiation {
-  id         String                 @id @default(uuid())
-  bookingId  String                 @unique
-  booking    Booking                @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  createdAt  DateTime               @default(now())
-  updatedAt  DateTime               @updatedAt
-  
-  messages   NegotiationMessage[]
+  id           String                   @id @default(uuid())
+  bookingId    String                   @unique
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  booking      Booking                  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  messages     NegotiationMessage[]
   participants NegotiationParticipant[]
 }
 
-// Link users participating in negotiation
 model NegotiationParticipant {
   id            String      @id @default(uuid())
   negotiationId String
-  negotiation   Negotiation @relation(fields: [negotiationId], references: [id], onDelete: Cascade)
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  negotiation   Negotiation @relation(fields: [negotiationId], references: [id], onDelete: Cascade)
 }
 
-// Individual negotiation messages / pricing proposals
 model NegotiationMessage {
   id            String      @id @default(uuid())
   negotiationId String
-  negotiation   Negotiation @relation(fields: [negotiationId], references: [id], onDelete: Cascade)
   senderId      String
   content       String
   proposedPrice Float?
   attachmentUrl String?
   createdAt     DateTime    @default(now())
+  negotiation   Negotiation @relation(fields: [negotiationId], references: [id], onDelete: Cascade)
 }
 
-// User-submitted feedback for past events
 model Review {
   id           String   @id @default(uuid())
   festivalId   String
   festivalName String
   userId       String
-  userName     String   // Company Name / Committee Name
-  role         String   // "VENDOR" | "ORGANIZER"
-  rating       Int      // 1 to 5 Stars
+  userName     String
+  role         String
+  rating       Int
   comment      String
   createdAt    DateTime @default(now())
 }
 
-// Financial and Transactional Reports
 model Report {
-  id           String   @id @default(uuid())
-  type         String   // "MONTHLY" | "EVENT"
-  period       String   // e.g. "June 2026", "2026-06" or event ID
-  title        String   // e.g. "Monthly Statement - June 2026" or "Event Ledger - Mood Indigo '26"
-  data         String   // JSON string storing statement details
-  createdAt    DateTime @default(now())
+  id        String   @id @default(uuid())
+  type      String
+  period    String
+  title     String
+  data      String
+  createdAt DateTime @default(now())
 }

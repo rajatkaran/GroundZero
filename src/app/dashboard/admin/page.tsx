@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PortalLayout from "@/components/PortalLayout";
-import { Loader2, TrendingUp, DollarSign, MessageSquare, Check, Landmark, ShieldCheck, Mail, MapPin, X, Users, ClipboardList, ArrowLeft, Phone, Info, Lock, Unlock, FileDown, CheckCircle2, XCircle, Map, Plus } from "lucide-react";
+import { Loader2, TrendingUp, DollarSign, MessageSquare, Check, Landmark, ShieldCheck, Mail, MapPin, X, Users, ClipboardList, ArrowLeft, Phone, Info, Lock, Unlock, FileDown, CheckCircle2, XCircle, Map, Plus, Zap } from "lucide-react";
 import StallMap from "@/components/StallMap";
 
 const getFallbackImage = (id: string | number) => {
@@ -996,7 +996,7 @@ export default function AdminDashboard() {
                               }}
                             />
                             <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-brand-border/40 px-3 py-1 rounded-full text-[11px] font-semibold text-brand-primary flex items-center gap-1 shadow-sm">
-                              ⚡ {fest.opportunityScore} Score
+                              <Zap size={12} className="fill-brand-primary text-brand-primary" /> {fest.opportunityScore} Score
                             </div>
                             {fest.mapLocked && (
                               <div className="absolute top-4 left-4 bg-amber-950/80 backdrop-blur-md border border-amber-500/30 px-3 py-1 rounded-full text-[11px] font-semibold text-amber-400 flex items-center gap-1.5 shadow-sm">

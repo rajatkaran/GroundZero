@@ -8,11 +8,11 @@ export async function POST(req: NextRequest) {
     await checkAndSeedDatabase();
 
     const body = await req.json();
-    const { email, role, password, otp } = body;
+    const { email, password, otp } = body;
 
-    if (!email || !role) {
+    if (!email) {
       return NextResponse.json(
-        { message: "Missing email or role." },
+        { message: "Missing email." },
         { status: 400 }
       );
     }
@@ -32,13 +32,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Role check to prevent login spoofing
-    if (user.role !== role) {
-      return NextResponse.json(
-        { message: `Invalid login path. Your account is registered as a ${user.role}.` },
-        { status: 403 }
-      );
-    }
+    // Role check removed
 
     // Verify authentication credentials (password or simulated OTP)
     if (otp) {

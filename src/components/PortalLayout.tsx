@@ -121,7 +121,7 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
                   </span>
                 </div>
               </Link>
- 
+
               {/* Role Badge */}
               {user && (
                 <span className="px-2.5 py-0.5 border border-brand-border rounded-full text-[10px] uppercase tracking-wider text-brand-secondary bg-brand-bg font-medium select-none">
@@ -138,11 +138,10 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`font-sans text-[13px] tracking-wide h-full flex items-center border-b-2 px-1 transition-all ${
-                      isActive
+                    className={`font-sans text-[13px] tracking-wide h-full flex items-center border-b-2 px-1 transition-all ${isActive
                         ? "border-brand-primary text-brand-primary font-medium"
                         : "border-transparent text-brand-secondary hover:text-brand-primary"
-                    }`}
+                      }`}
                   >
                     <span className="mr-1.5 text-sm">{link.emoji}</span>
                     {link.name}
@@ -208,7 +207,7 @@ export default function PortalLayout({ children, activeTab }: PortalLayoutProps)
                     Log In
                   </Link>
                   <Link href="/auth?type=signup" className="btn-liquid-glass-dark py-2.5 px-4 text-xs font-semibold">
-                    Request Access
+                    Signup
                   </Link>
                 </div>
               )}

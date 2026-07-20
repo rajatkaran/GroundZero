@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Search, MapPin, Users, Heart, MessageSquare, Share2, Sparkles, ChevronRight } from "lucide-react";
+import { Loader2, Search, MapPin, Users, Heart, MessageSquare, Share2, Sparkles, ChevronRight, Zap } from "lucide-react";
 import PortalLayout from "@/components/PortalLayout";
 
 const getFallbackImage = (id: string | number) => {
@@ -236,7 +236,7 @@ export default function DiscoverFestivals() {
                         }}
                       />
                       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-brand-border/40 px-3 py-1 rounded-full text-[11px] font-semibold text-brand-primary flex items-center gap-1 shadow-sm">
-                        ⚡ {fest.opportunityScore} Score
+                        <Zap size={12} className="fill-brand-primary text-brand-primary" /> {fest.opportunityScore} Score
                       </div>
                     </div>
 
@@ -341,7 +341,7 @@ export default function DiscoverFestivals() {
                       </div>
                       {/* Floating Quality Score Tag */}
                       <span className="px-2.5 py-1 bg-brand-bg border border-brand-border text-brand-primary font-sans text-[10px] font-semibold rounded-full flex items-center gap-1">
-                        ⚡ {fest.opportunityScore} Score
+                        <Zap size={12} className="fill-brand-primary text-brand-primary" /> {fest.opportunityScore} Score
                       </span>
                     </div>
 

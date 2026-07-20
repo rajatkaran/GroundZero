@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, use, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, ArrowLeft, Plus, Check, Trash2, MapPin } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, Check, Trash2, MapPin, Store, Mic, Route, Zap, Lock } from "lucide-react";
 import PortalLayout from "@/components/PortalLayout";
 
 function LayoutMapper() {
@@ -467,15 +467,15 @@ function LayoutMapper() {
               {/* Canvas Toolbox Toolbar */}
               {festival.mapLocked ? (
                 <div className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 font-bold rounded-xl text-[10px] uppercase tracking-wider flex items-center gap-1.5 select-none">
-                  <span>🔒 Layout Locked (Read-Only)</span>
+                  <span className="flex items-center gap-1.5"><Lock size={12} /> Layout Locked (Read-Only)</span>
                 </div>
               ) : (
                 <div className="flex bg-brand-card border border-brand-border p-1 rounded-xl gap-1 text-[11px] font-sans">
                   {[
-                    { mode: "STALL", label: "🏪 Stall Spot" },
-                    { mode: "STAGE", label: "🎪 Concert Stage" },
-                    { mode: "WALKWAY", label: "🛣️ Walkway Path" },
-                    { mode: "UTILITY", label: "⚡ Food/Utility Zone" }
+                    { mode: "STALL", label: <span className="flex items-center gap-1.5"><Store size={14} /> Stall Spot</span> },
+                    { mode: "STAGE", label: <span className="flex items-center gap-1.5"><Mic size={14} /> Concert Stage</span> },
+                    { mode: "WALKWAY", label: <span className="flex items-center gap-1.5"><Route size={14} /> Walkway Path</span> },
+                    { mode: "UTILITY", label: <span className="flex items-center gap-1.5"><Zap size={14} /> Food/Utility Zone</span> }
                   ].map((btn) => (
                     <button
                       key={btn.mode}
